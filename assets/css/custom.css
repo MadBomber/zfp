@@ -1,0 +1,17 @@
+/* Hide the auto-rendered page heading only on pages that have a hero image */
+.md-content__inner:has(.zfp-hero) > h1 {
+  display: none;
+}
+
+/* Hero image block */
+.zfp-hero {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 1.5rem;
+}
+
+.zfp-hero img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
