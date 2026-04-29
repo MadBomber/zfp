@@ -1,9 +1,8 @@
-# zfp — ZFP Floating-Point Compression for Ruby
-
-> _Because your floats deserve better than Base64._
-
-[![Gem Version](https://img.shields.io/gem/v/zfp)](https://rubygems.org/gems/zfp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<div align="center">
+  <img src="docs/assets/images/zfp.png" alt="zfp logo" width="1200"/>
+  <br/>
+  _Because your floats deserve better than Base64._
+</div>
 
 **`zfp`** brings [LLNL's battle-hardened ZFP compression library](https://computing.llnl.gov/projects/zfp) to Ruby. ZFP was built by national-lab scientists to compress petabytes of floating-point simulation data without losing the ability to do science on it. Now it's in a Ruby gem. You're welcome, science.
 
