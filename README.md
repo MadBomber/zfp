@@ -1,10 +1,10 @@
 <div align="center">
   <img src="docs/assets/images/zfp.png" alt="zfp logo" width="1200"/>
   <br/>
-  _Because your floats deserve better than Base64._
+  <i>Because your floats deserve better than Base64.</i>
 </div>
-
-**`zfp`** brings [LLNL's battle-hardened ZFP compression library](https://computing.llnl.gov/projects/zfp) to Ruby. ZFP was built by national-lab scientists to compress petabytes of floating-point simulation data without losing the ability to do science on it. Now it's in a Ruby gem. You're welcome, science.
+<p>
+**zfp** brings [LLNL's battle-hardened ZFP compression library](https://computing.llnl.gov/projects/zfp) to Ruby. ZFP was built by national-lab scientists to compress petabytes of floating-point simulation data without losing the ability to do science on it. Now it's in a Ruby gem. You're welcome, science.
 
 Whether you're cramming ten years of OHLCV market data into Redis, shipping a million embedding vectors over the wire, or just deeply offended by how wasteful `Array#pack("E*")` is, this gem is for you.
 
