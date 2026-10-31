@@ -14,9 +14,18 @@ Gem::Specification.new do |spec|
   DESC
 
   spec.homepage    = "https://github.com/madbomber/zfp"
+  spec.license     = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
-  spec.files = Dir["lib/**/*", "sig/**/*", "README.md"]
+  spec.metadata = {
+    "homepage_uri"      => spec.homepage,
+    "source_code_uri"   => spec.homepage,
+    "changelog_uri"     => "#{spec.homepage}/blob/main/CHANGELOG.md",
+    "documentation_uri" => "https://madbomber.github.io/zfp",
+    "bug_tracker_uri"   => "#{spec.homepage}/issues"
+  }
+
+  spec.files = Dir["lib/**/*", "sig/**/*", "README.md", "CHANGELOG.md", "LICENSE"]
 
   spec.add_dependency "ffi", "~> 1.0"
 

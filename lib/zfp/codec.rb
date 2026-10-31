@@ -2,13 +2,15 @@
 
 module Zfp
   class Codec
-    VALID_TYPES = %i[float double int32 int64].freeze
-    VALID_MODES = %i[fixed_rate fixed_precision fixed_accuracy reversible].freeze
+    VALID_TYPES   = %i[float double int32 int64].freeze
+    VALID_MODES   = %i[fixed_rate fixed_precision fixed_accuracy reversible].freeze
+    INTEGER_TYPES = %i[int32 int64].freeze
 
     def initialize(type:, shape:, mode:, numo: false, **params)
       validate_type!(type)
       validate_mode!(mode)
-      validate_shape!(shape)
+      validate_type_mode!(type, mode)
+      Field.validate_shape!(shape)
       validate_params!(mode, params)
       @type   = type
       @shape  = shape
@@ -18,7 +20,7 @@ module Zfp
     end
 
     def compress(data)
-      buf   = TypeCoercion.to_buffer(data, @type)
+      buf   = TypeCoercion.to_buffer(data, @type, @shape)
       field = Field.new(@type, @shape, buf)
       Stream.new(@mode, @params).compress(field)
     ensure
@@ -36,8 +38,10 @@ module Zfp
       field&.free
     end
 
-    def pack(data)
-      as_numo    = @numo || TypeCoercion.numo?(data)
+    # numo: overrides what Zfp.unpack will return later. By default a Numo
+    # input (or a codec built with numo: true) unpacks to Numo.
+    def pack(data, numo: nil)
+      as_numo    = numo.nil? ? (@numo || TypeCoercion.numo?(data)) : numo
       compressed = compress(data)
       Packer.encode(compressed, type: @type, shape: @shape, mode: @mode,
                     params: @params, numo: as_numo)
@@ -55,12 +59,12 @@ module Zfp
         unless VALID_MODES.include?(mode)
     end
 
-    def validate_shape!(shape)
-      unless shape.is_a?(Array) && shape.length.between?(1, 4) &&
-             shape.all? { |d| d.is_a?(Integer) && d > 0 }
-        raise Zfp::InvalidShape,
-          "shape must be Array of 1–4 positive integers, got #{shape.inspect}"
-      end
+    # Integer types are lossless by nature; the gem supports them in
+    # :reversible mode only, as documented.
+    def validate_type_mode!(type, mode)
+      return unless INTEGER_TYPES.include?(type) && mode != :reversible
+      raise Zfp::InvalidMode,
+        "#{type} supports mode: :reversible only (got #{mode.inspect})"
     end
 
     def validate_params!(mode, params)

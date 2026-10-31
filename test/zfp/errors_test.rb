@@ -9,6 +9,7 @@ class ErrorsTest < Minitest::Test
 
   {
     Zfp::LibraryNotFound     => Zfp::Error,
+    Zfp::NumoNotAvailable    => Zfp::Error,
     Zfp::InvalidType         => Zfp::Error,
     Zfp::InvalidMode         => Zfp::Error,
     Zfp::InvalidShape        => Zfp::Error,
