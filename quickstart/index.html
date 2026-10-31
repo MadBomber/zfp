@@ -589,6 +589,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#files-on-disk-save-load" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files on disk: save / load
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -748,6 +759,8 @@
       
         
       
+        
+      
     
     
     
@@ -843,6 +856,34 @@
     
   
     Zfp::Codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zfp::Packed
   
 
     
@@ -1113,6 +1154,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#files-on-disk-save-load" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files on disk: save / load
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1226,51 +1278,62 @@
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">                                 </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="self-describing-bytes-pack-unpack">Self-describing bytes: <code>pack</code> / <code>unpack</code><a class="headerlink" href="#self-describing-bytes-pack-unpack" title="Permanent link">&para;</a></h3>
-<p>Metadata (type, shape, mode, params) is embedded in a 32-byte header prepended to the compressed bytes. Pass bytes anywhere — Redis, S3, a message queue — and unpack without needing a schema.</p>
-<p>The header is specific to this gem, and the raw <code>compress</code> output has no header at all, so neither can be read by the <code>zfp</code> command-line tool or other zfp bindings.</p>
+<p><code>pack</code> returns a <code>Zfp::Packed</code>: the compressed payload behind a 32-byte header that records type, shape, mode, and params. It behaves like a <code>String</code> wherever one is expected (<code>to_str</code>), so it can go straight into Redis, S3, a message queue, or a file, and be unpacked later without a schema.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Pack: embed type/shape/mode/params in the bytes themselves</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">packed</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">prices</span><span class="o">.</span><span class="n">size</span><span class="o">]</span><span class="p">,</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">                            </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Unpack: zero additional arguments needed</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">restored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">prices</span><span class="o">.</span><span class="n">size</span><span class="o">]</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">                          </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">packed</span><span class="o">.</span><span class="n">mode</span><span class="w">      </span><span class="c1"># =&gt; :fixed_accuracy   (header fields, no decompression)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">packed</span><span class="o">.</span><span class="n">shape</span><span class="w">     </span><span class="c1"># =&gt; [10005]</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Unpack: zero additional arguments needed</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">restored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">packed</span><span class="o">.</span><span class="n">unpack</span><span class="w">        </span><span class="c1"># or Zfp.unpack(packed) / Zfp.unpack(raw_bytes)</span>
 </span></code></pre></div>
+<p>The header is specific to this gem, and the raw <code>compress</code> output has no header at all, so neither can be read by the <code>zfp</code> command-line tool or other zfp bindings.</p>
+<h3 id="files-on-disk-save-load">Files on disk: <code>save</code> / <code>load</code><a class="headerlink" href="#files-on-disk-save-load" title="Permanent link">&para;</a></h3>
+<p>A <code>.zfp</code> file is just the packed bytes, so it is complete on its own.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">packed</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">)</span><span class="w">              </span><span class="c1"># returns the path</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">loaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">)</span><span class="w">        </span><span class="c1"># =&gt; Zfp::Packed, metadata intact</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">loaded</span><span class="o">.</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">loaded</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">loaded</span><span class="o">.</span><span class="n">mode</span><span class="w"> </span><span class="c1"># inspect before decompressing</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">prices_again</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loaded</span><span class="o">.</span><span class="n">unpack</span>
+</span></code></pre></div>
+<p><code>Zfp.load</code> raises <code>Errno::ENOENT</code> for a missing file and <code>Zfp::PackerError</code> for a file that is not a zfp pack. The <code>.zfp</code> extension is a convention, not a requirement.</p>
 <hr />
 <h2 id="2-zfpcodec-when-you-compress-many-arrays-with-the-same-config">2. <code>Zfp::Codec</code> — when you compress many arrays with the same config<a class="headerlink" href="#2-zfpcodec-when-you-compress-many-arrays-with-the-same-config" title="Permanent link">&para;</a></h2>
 <p>Build a codec once. Compress forever.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Codec</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">252</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Same codec compresses each security's yearly price history</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">securities</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">ticker</span><span class="o">|</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="n">store</span><span class="o">[</span><span class="n">ticker</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">daily_closes</span><span class="o">[</span><span class="n">ticker</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">end</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1"># Retrieve and decompress</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">store</span><span class="o">[</span><span class="s2">"AAPL"</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1"># Or get self-describing bytes via codec.pack (decode with Zfp.unpack)</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">daily_closes</span><span class="o">[</span><span class="s2">"AAPL"</span><span class="o">]</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Codec</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">252</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Same codec compresses each security's yearly price history</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">securities</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">ticker</span><span class="o">|</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="n">store</span><span class="o">[</span><span class="n">ticker</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">daily_closes</span><span class="o">[</span><span class="n">ticker</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Retrieve and decompress</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">store</span><span class="o">[</span><span class="s2">"AAPL"</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># Or get a self-describing Zfp::Packed via codec.pack, and save it</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">daily_closes</span><span class="o">[</span><span class="s2">"AAPL"</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"aapl.zfp"</span><span class="p">)</span>
 </span></code></pre></div>
 <hr />
 <h2 id="3-numonarray-auto-detect-type-and-shape">3. Numo::NArray — auto-detect type and shape<a class="headerlink" href="#3-numonarray-auto-detect-type-and-shape" title="Permanent link">&para;</a></h2>
 <p>If you have required <a href="https://github.com/ruby-numo/numo-narray">numo-narray</a>, <code>type:</code> and <code>shape:</code> are inferred automatically from the array. Requesting Numo output without the gem installed raises <code>Zfp::NumoNotAvailable</code>.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"numo/narray"</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">closes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Numo</span><span class="o">::</span><span class="no">DFloat</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">daily_prices</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">252</span><span class="p">)</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># No type: or shape: needed</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">bytes</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">closes</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">closes</span><span class="p">,</span><span class="w">     </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Get a Numo array back</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">252</span><span class="o">]</span><span class="p">,</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">                               </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># =&gt; Numo::DFloat[50, 252]</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="c1"># pack/unpack preserves the Numo type automatically</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="c1"># =&gt; Numo::DFloat[50, 252]</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"numo/narray"</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">closes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Numo</span><span class="o">::</span><span class="no">DFloat</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">daily_prices</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">252</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># No type: or shape: needed</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">bytes</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">closes</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">closes</span><span class="p">,</span><span class="w">     </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1"># Get a Numo array back</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">252</span><span class="o">]</span><span class="p">,</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">                               </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="c1"># =&gt; Numo::DFloat[50, 252]</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1"># pack/unpack preserves the Numo type automatically</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="c1"># =&gt; Numo::DFloat[50, 252]</span>
 </span></code></pre></div>
 <hr />
 <h2 id="choosing-a-compression-mode">Choosing a Compression Mode<a class="headerlink" href="#choosing-a-compression-mode" title="Permanent link">&para;</a></h2>

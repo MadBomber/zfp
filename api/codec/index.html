@@ -18,7 +18,7 @@
         <link rel="prev" href="../module-methods/">
       
       
-        <link rel="next" href="../errors/">
+        <link rel="next" href="../packed/">
       
       
         
@@ -618,6 +618,8 @@
       
         
       
+        
+      
     
     
     
@@ -867,6 +869,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zfp::Packed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1364,13 +1394,14 @@
 </span></code></pre></div>
 <hr />
 <h2 id="pack"><code>#pack</code><a class="headerlink" href="#pack" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Packed</span>
 </span></code></pre></div>
-<p>Compresses <code>data</code> and prepends the 32-byte metadata header, just like <code>Zfp.pack</code>. The resulting bytes are self-describing and can be decoded with <code>Zfp.unpack</code>. <code>numo:</code> sets whether <code>Zfp.unpack</code> returns a <code>Numo::NArray</code>; by default it does when the codec was built with <code>numo: true</code> or the input is a Numo array.</p>
+<p>Compresses <code>data</code> and prepends the 32-byte metadata header, just like <code>Zfp.pack</code>. The resulting <a href="../packed/"><code>Zfp::Packed</code></a> is self-describing: decode it with <code>#unpack</code> or <code>Zfp.unpack</code>, or write it to disk with <code>#save</code>. <code>numo:</code> sets whether <code>Zfp.unpack</code> returns a <code>Numo::NArray</code>; by default it does when the codec was built with <code>numo: true</code> or the input is a Numo array.</p>
 <p><strong>Example:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">codec</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Codec</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">50</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span><span class="w">   </span><span class="c1"># Zfp.unpack: no additional args</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">packed</span><span class="o">.</span><span class="n">unpack</span><span class="w">        </span><span class="c1"># no additional args</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">packed</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"data.zfp"</span><span class="p">)</span><span class="w">       </span><span class="c1"># or persist it; Zfp.load("data.zfp").unpack later</span>
 </span></code></pre></div>
 <hr />
 <h2 id="use-cases">Use Cases<a class="headerlink" href="#use-cases" title="Permanent link">&para;</a></h2>
@@ -1398,8 +1429,8 @@
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">vectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">embedding_batch</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Store and retrieve without keeping a schema</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">vectors</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">queue</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">queue</span><span class="o">.</span><span class="n">each</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">vectors</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">queue</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">to_str</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">queue</span><span class="o">.</span><span class="n">each</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">bytes</span><span class="o">|</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes</span><span class="p">))</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
 
 
@@ -1507,13 +1538,13 @@
         
         
           
-          <a href="../errors/" class="md-footer__link md-footer__link--next" aria-label="Next: Errors">
+          <a href="../packed/" class="md-footer__link md-footer__link--next" aria-label="Next: Zfp::Packed">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Errors
+                Zfp::Packed
               </div>
             </div>
             <div class="md-footer__button md-icon">

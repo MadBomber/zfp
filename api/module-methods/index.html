@@ -618,6 +618,8 @@
       
         
       
+        
+      
     
     
     
@@ -785,6 +787,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#zfpload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zfp.load
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -809,6 +822,34 @@
     
   
     Zfp::Codec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zfp::Packed
   
 
     
@@ -1089,6 +1130,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#zfpload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zfp.load
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1171,7 +1223,7 @@
 
 
 <h1 id="module-methods">Module Methods<a class="headerlink" href="#module-methods" title="Permanent link">&para;</a></h1>
-<p><code>Zfp</code> exposes four module-level methods. These are the simplest way to compress and decompress data without creating any objects.</p>
+<p><code>Zfp</code> exposes five module-level methods. These are the simplest way to compress and decompress data without creating any objects.</p>
 <hr />
 <h2 id="zfpcompress"><code>Zfp.compress</code><a class="headerlink" href="#zfpcompress" title="Permanent link">&para;</a></h2>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:,</span><span class="w"> </span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
@@ -1315,26 +1367,26 @@
 </span></code></pre></div>
 <hr />
 <h2 id="zfppack"><code>Zfp.pack</code><a class="headerlink" href="#zfppack" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Packed</span>
 </span></code></pre></div>
-<p>Compresses <code>data</code> and prepends a 32-byte header containing all metadata. The result is a self-describing byte string that can be decompressed with <code>Zfp.unpack</code> without any additional arguments.</p>
+<p>Compresses <code>data</code> and prepends a 32-byte header containing all metadata. The result is a <a href="../packed/"><code>Zfp::Packed</code></a>: self-describing bytes that can be decompressed with <code>#unpack</code> or <code>Zfp.unpack</code> without any additional arguments, saved with <code>#save(path)</code>, and passed anywhere a <code>String</code> is accepted.</p>
 <p><strong>Arguments:</strong> Same as <code>compress</code>, plus the same Numo auto-detection, plus <code>numo:</code> — whether <code>Zfp.unpack</code> should return a <code>Numo::NArray</code>. Defaults to <code>true</code> for Numo input and <code>false</code> for a Ruby <code>Array</code>.</p>
 <p><strong>Header format:</strong> The 32-byte header stores magic bytes (<code>ZFP\x02</code>), type, mode, dimensionality, shape dimensions, mode parameter (rate/precision/tolerance), and a flag indicating whether the original input was a <code>Numo::NArray</code>. The header is gem-specific; see <a href="../internals/#zfppacker">Internals</a> for the layout.</p>
-<p><strong>Returns:</strong> A <code>String</code> of <code>32 + compressed_size</code> bytes.</p>
+<p><strong>Returns:</strong> A <code>Zfp::Packed</code> of <code>32 + compressed_size</code> bytes (<code>#bytesize</code>), convertible to a <code>String</code> with <code>#to_str</code>.</p>
 <p><strong>Example:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">252</span><span class="o">]</span><span class="p">,</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">                          </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># =&gt; "ZFP\x02..." (32-byte header + compressed body)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># =&gt; #&lt;Zfp::Packed type=:double shape=[252] mode=:fixed_accuracy tolerance=0.001 bytesize=664&gt;</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Can be stored anywhere and decoded without a schema</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="no">File</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">,</span><span class="w"> </span><span class="n">packed</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="s2">"wb"</span><span class="p">)</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="no">Redis</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"prices:AAPL"</span><span class="p">,</span><span class="w"> </span><span class="n">packed</span><span class="p">)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">packed</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="no">Redis</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"prices:AAPL"</span><span class="p">,</span><span class="w"> </span><span class="n">packed</span><span class="p">)</span><span class="w">   </span><span class="c1"># String-compatible via to_str</span>
 </span></code></pre></div>
 <hr />
 <h2 id="zfpunpack"><code>Zfp.unpack</code><a class="headerlink" href="#zfpunpack" title="Permanent link">&para;</a></h2>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bytes</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">Array</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="no">Numo</span><span class="o">::</span><span class="no">NArray</span>
 </span></code></pre></div>
-<p>Decodes a byte string produced by <code>pack</code> or <code>Zfp::Codec#pack</code>. Reads all metadata from the embedded header and decompresses.</p>
+<p>Decodes a <code>Zfp::Packed</code>, or the raw bytes of one (for example read back from Redis), produced by <code>pack</code> or <code>Zfp::Codec#pack</code>. Reads all metadata from the embedded header and decompresses. <code>packed.unpack</code> is the same operation.</p>
 <p><strong>Arguments:</strong></p>
 <table>
 <thead>
@@ -1358,7 +1410,26 @@
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">packed</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span><span class="w">  </span><span class="c1"># matrix is Numo::DFloat[50, 252]</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">restored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># =&gt; Numo::DFloat[50, 252]  — type, shape, and mode all recovered from header</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"closes"</span><span class="p">)</span><span class="w">     </span><span class="c1"># a String of packed bytes</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span><span class="w">               </span><span class="c1"># works on the raw bytes too</span>
 </span></code></pre></div>
+<hr />
+<h2 id="zfpload"><code>Zfp.load</code><a class="headerlink" href="#zfpload" title="Permanent link">&para;</a></h2>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Packed</span>
+</span></code></pre></div>
+<p>Reads a file written with <a href="../packed/#save"><code>Zfp::Packed#save</code></a> and returns the <code>Zfp::Packed</code>, metadata intact. Nothing is decompressed until you call <code>#unpack</code>, so loading is cheap and the header fields (<code>type</code>, <code>shape</code>, <code>mode</code>, <code>params</code>, <code>numo?</code>) can be inspected first.</p>
+<p><strong>Raises:</strong> <code>Errno::ENOENT</code> and other <code>SystemCallError</code>s from the filesystem; <code>Zfp::PackerError</code> if the file is not a zfp pack (or is a multi-dimensional 0.1.0 pack).</p>
+<p><strong>Example:</strong></p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">252</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">packed</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">)</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">loaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">loaded</span><span class="o">.</span><span class="n">shape</span><span class="w">      </span><span class="c1"># =&gt; [252]</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="n">loaded</span><span class="o">.</span><span class="n">params</span><span class="w">     </span><span class="c1"># =&gt; { tolerance: 0.001 }</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loaded</span><span class="o">.</span><span class="n">unpack</span>
+</span></code></pre></div>
+<p>The <code>.zfp</code> extension is recommended (<code>Zfp::Packed::EXTENSION</code>) but not enforced.</p>
 
 
 
