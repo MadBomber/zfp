@@ -42,17 +42,19 @@ All four layouts contain 256 elements. ZFP exploits different spatial correlatio
 
 The script compresses the same 256-element sinusoidal dataset with every mode and parameter combination, printing raw size, compressed size, ratio, and max error:
 
-| Mode | Params | Expected ratio |
-|---|---|---|
-| `:reversible` | — | ~2.5× |
-| `:fixed_rate` | `rate: 8.0` | 8× |
-| `:fixed_rate` | `rate: 4.0` | 16× |
-| `:fixed_rate` | `rate: 2.0` | 32× |
-| `:fixed_precision` | `precision: 24` | ~5× |
-| `:fixed_precision` | `precision: 12` | ~10× |
-| `:fixed_accuracy` | `tolerance: 0.001` | ~7× |
-| `:fixed_accuracy` | `tolerance: 0.1` | ~10× |
-| `:fixed_accuracy` | `tolerance: 1.0` | ~13× |
+| Mode | Params | Measured ratio | Max error |
+|---|---|---|---|
+| `:reversible` | — | 1.1× | 0 |
+| `:fixed_rate` | `rate: 8.0` | 8× | 22.8 |
+| `:fixed_rate` | `rate: 4.0` | 16× | 612 |
+| `:fixed_rate` | `rate: 2.0` | 21× (libzfp applies its 3 bits/value minimum) | 1000 |
+| `:fixed_precision` | `precision: 24` | 2.7× | 5.0e-4 |
+| `:fixed_precision` | `precision: 12` | 5.4× | 1.6 |
+| `:fixed_accuracy` | `tolerance: 0.001` | 2.8× | 5.0e-4 |
+| `:fixed_accuracy` | `tolerance: 0.1` | 3.7× | 2.8e-2 |
+| `:fixed_accuracy` | `tolerance: 1.0` | 4.8× | 4.4e-1 |
+
+A 256-element 1-D sinusoid is a small, hard case for ZFP; the point of this section is the trade-off between modes, not the absolute ratios.
 
 ### 4. Pack / Unpack
 
@@ -120,8 +122,8 @@ result = Zfp.unpack(packed)   # self-describing, no schema needed
 
   All four scalar types · shape=[128] · mode=:reversible
   ──────────────────────────────────────────────────────────────────
-  type=:float, shape=[128]               512 B →     248 B    2.1x  [exact     ]
-  type=:double, shape=[128]            1.0 KB →     488 B    2.1x  [exact     ]
-  type=:int32, shape=[128]               512 B →     192 B    2.7x  [exact     ]
-  type=:int64, shape=[128]             1.0 KB →     344 B    3.0x  [exact     ]
+  type=:float, shape=[128]                 512 B →   160 B   3.2x  [exact     ]
+  type=:double, shape=[128]               1.0 KB →   176 B   5.8x  [exact     ]
+  type=:int32, shape=[128]                 512 B →   192 B   2.7x  [exact     ]
+  type=:int64, shape=[128]                1.0 KB →   456 B   2.2x  [exact     ]
 ```

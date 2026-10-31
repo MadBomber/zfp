@@ -28,10 +28,11 @@ It offers four compression modes:
 
 ## Installation
 
-You need `libzfp` installed first. Install it with [upkg](https://github.com/seuros/upkg):
+You need `libzfp` installed first, with [upkg](https://github.com/seuros/upkg) or Homebrew:
 
 ```bash
-upkg install zfp
+upkg install zfp      # any platform
+brew install zfp      # macOS
 ```
 
 Then add the gem:
@@ -97,6 +98,8 @@ data  = Zfp.decompress(bytes, type: :double, shape: [1000], mode: :fixed_accurac
 
 Metadata is embedded in a 32-byte header. Pass bytes anywhere — Redis, S3, a message queue — and unpack without needing a schema.
 
+The header is specific to this gem. Neither it nor the raw `compress` output (which carries no zfp header at all) can be read by the `zfp` command-line tool or by zfp bindings for other languages.
+
 ```ruby
 # Pack: type/shape/mode/params stored in the bytes themselves
 packed   = Zfp.pack(data, type: :double, shape: [1000], mode: :fixed_accuracy, tolerance: 0.001)
@@ -145,6 +148,8 @@ Zfp.compress(tensor, type: :double, shape: [10, 30, 252], mode: :reversible)
 Zfp.compress(data4d, type: :double, shape: [4, 8, 16, 16], mode: :reversible)
 ```
 
+`shape:` is **row-major**: the order of a nested Ruby Array after `flatten`, and the order `Numo::NArray#shape` reports, with the last dimension varying fastest. libzfp numbers its axes the other way round (its `nx` is the fastest-varying one); the gem does that conversion internally, so never reverse a shape yourself. The product of the dimensions must equal the element count, or `Zfp::InvalidShape` is raised. See [Multi-Dimensional Arrays](https://madbomber.github.io/zfp/multi-dimensional/) for why this matters: described correctly, a smooth 100×120 grid compresses 15×; transposed, 6×.
+
 ---
 
 ## All Four Scalar Types
@@ -154,7 +159,8 @@ Zfp.compress(data4d, type: :double, shape: [4, 8, 16, 16], mode: :reversible)
 Zfp.compress(floats,   type: :float,  shape: [n], mode: :reversible)
 Zfp.compress(doubles,  type: :double, shape: [n], mode: :fixed_accuracy, tolerance: 1e-6)
 
-# Integer — reversible mode only (already lossless by nature)
+# Integer — reversible mode only; any other mode raises Zfp::InvalidMode.
+# Elements must be Integers within the 32-/64-bit signed range, or Zfp::InvalidType is raised.
 Zfp.compress(counts,   type: :int32,  shape: [n], mode: :reversible)
 Zfp.compress(ids,      type: :int64,  shape: [n], mode: :reversible)
 ```
@@ -163,7 +169,7 @@ Zfp.compress(ids,      type: :int64,  shape: [n], mode: :reversible)
 
 ## Numo::NArray Support
 
-If [numo-narray](https://github.com/ruby-numo/numo-narray) is loaded, the gem auto-detects type and shape from Numo arrays. No `type:` or `shape:` arguments needed on compress or pack.
+If you have required [numo-narray](https://github.com/ruby-numo/numo-narray), the gem auto-detects type and shape from Numo arrays. No `type:` or `shape:` arguments needed on compress or pack. For Numo *output* (`numo: true`, or unpacking bytes that were packed from a Numo array) the gem requires `numo/narray` on demand and raises `Zfp::NumoNotAvailable` if the gem is not installed.
 
 ```ruby
 require "numo/narray"
@@ -195,12 +201,14 @@ result = Zfp.unpack(packed)
 
 ### `:reversible` — lossless, bit-exact
 
-Use this when correctness is non-negotiable. Compression ratios depend on data entropy:
-sequential integers and smooth time series compress well; high-entropy noise barely shrinks.
+Use this when correctness is non-negotiable. Compression ratios depend entirely on how
+predictable neighboring values are: smooth grids and sequences compress well; noisy
+series and high-entropy data barely shrink.
 
 ```ruby
 bytes = Zfp.compress(data, type: :double, shape: [n], mode: :reversible)
-# Typical ratios: 2x–6x on financial/scientific data
+# Measured: 1.1x on simulated daily closes, 2.7x–5.8x on arithmetic sequences,
+#           15x on a smooth 2-D grid. Measure on your own data before planning around a number.
 ```
 
 ### `:fixed_accuracy` — absolute error bound
@@ -209,10 +217,11 @@ The workhorse for financial and ML workloads. You set a maximum per-element erro
 ZFP uses as few bits as needed to honor it.
 
 ```ruby
-# Error on any element guaranteed ≤ tolerance
+# Error on any finite element guaranteed ≤ tolerance (NaN/Infinity are not preserved in lossy modes)
 bytes = Zfp.compress(prices, type: :double, shape: [n], mode: :fixed_accuracy, tolerance: 0.001)
 # $0.001 per price point — indistinguishable for P&L calculations
-# Typical ratios: 3x–8x
+# Measured: 2.7x–3.0x on simulated daily closes at tolerance 0.001;
+#           2.8x → 4.8x on a sinusoid as tolerance rises from 0.001 to 1.0
 ```
 
 ### `:fixed_precision` — significant bits
@@ -222,7 +231,8 @@ an absolute error bound. Handy for scientific data where relative precision matt
 
 ```ruby
 bytes = Zfp.compress(data, type: :double, shape: [n], mode: :fixed_precision, precision: 20)
-# 20 significant bits preserved (of 52 available in a double)
+# precision is the bit budget per transform coefficient (up to 64 for a double, 32 for a float);
+# it is not a mantissa-bit count. Error is relative to the largest value in each 4-element block.
 ```
 
 ### `:fixed_rate` — guaranteed bytes per value
@@ -235,26 +245,26 @@ bytes = Zfp.compress(data, type: :double, shape: [n], mode: :fixed_rate, rate: 1
 # 16 bits per value → 4x smaller than raw double
 # WARNING: aggressive rates (< 8) can produce large errors on high-dynamic-range data.
 #          Always validate max_err against your tolerance before committing to a rate.
+# NOTE:    libzfp enforces a per-block minimum (about 3 bits/value for 1-D doubles); lower
+#          requests are rounded up and the output is sized by the rate actually applied.
 ```
 
 ---
 
 ## Real-World Performance
 
-Benchmarked on a portfolio of 5 × ~20 securities × 252 trading days of close prices
-(synthetic GBM data, see `examples/portfolio_performance.rb`):
+Benchmarked on 5 portfolios of 14–29 securities × 252 trading days of close prices
+(synthetic GBM data, seed 42, `examples/02_portfolio_performance.rb`):
 
 | Mode | Ratio | Max Error |
 |---|---|---|
-| `:reversible` | 1.1×–1.2× | 0 (exact) |
-| `:fixed_accuracy, tolerance: 0.001` | 3.0×–3.4× | < $0.001 |
-| `:fixed_accuracy, tolerance: 0.01` | 3.4× | < $0.01 |
+| `:reversible` | 1.0×–1.1× | 0 (exact) |
+| `:fixed_accuracy, tolerance: 0.001` | 2.7×–3.0× | $0.00035 |
 
-ZFP shines brightest on correlated data — real market prices (correlated sectors, macro
-moves, mean reversion) compress significantly better than the GBM baseline above.
-
-For ML embedding vectors (1536-dim float32, high spatial correlation):
-expect 4×–10× with `:fixed_accuracy` and a tolerance tuned to preserve cosine similarity.
+Independent GBM paths are a hard case: there is no cross-security correlation for the 2-D
+transform to exploit, and daily returns are pure noise. Real market data (correlated sectors,
+macro moves) should do better, but measure before you plan around a number. We have not yet
+benchmarked ML embedding vectors; the tolerance sweep in the docs shows how to measure your own.
 
 ---
 
@@ -262,14 +272,20 @@ expect 4×–10× with `:fixed_accuracy` and a tolerance tuned to preserve cosin
 
 ```ruby
 Zfp::LibraryNotFound     # libzfp not installed or not found
-Zfp::InvalidType         # unrecognized :type symbol
-Zfp::InvalidMode         # unrecognized :mode symbol
-Zfp::InvalidShape        # empty shape, > 4 dimensions, or non-positive dimension
+Zfp::NumoNotAvailable    # Numo output requested but numo-narray is not installed
+Zfp::InvalidType         # unrecognized :type, non-Array data, or integer data out of range
+Zfp::InvalidMode         # unrecognized :mode, or a lossy mode with an integer type
+Zfp::InvalidShape        # bad shape, or shape product ≠ number of elements
 Zfp::InvalidParams       # missing or invalid mode-specific param (rate/precision/tolerance)
 Zfp::CompressionFailed   # libzfp returned an error during compress
-Zfp::DecompressionFailed # libzfp returned an error during decompress
-Zfp::PackerError         # corrupt or truncated pack header
+Zfp::DecompressionFailed # empty input, truncated :fixed_rate stream, or libzfp error
+Zfp::PackerError         # corrupt, truncated, or 0.1.0 multi-dimensional pack header
 ```
+
+Decompressing with the wrong type, shape, mode, or parameters **cannot** be detected for raw
+`compress` output: the bytes carry no header, so you get a full-size array of garbage, not an
+error. The gem only guarantees that this is memory-safe. Use `pack`/`unpack` when the
+parameters need to travel with the data.
 
 All inherit from `Zfp::Error < StandardError`.
 
@@ -299,7 +315,7 @@ All inherit from `Zfp::Error < StandardError`.
 
 ```bash
 bundle exec ruby examples/01_basic_usage.rb
-bundle exec ruby examples/portfolio_performance.rb
+bundle exec ruby examples/02_portfolio_performance.rb
 ```
 
 ---
@@ -309,7 +325,7 @@ bundle exec ruby examples/portfolio_performance.rb
 - Ruby ≥ 3.0
 - libzfp 1.0+ — install with [upkg](https://github.com/seuros/upkg): `upkg install zfp`
 - [ffi](https://github.com/ffi/ffi) ~> 1.0 (installed automatically)
-- [numo-narray](https://github.com/ruby-numo/numo-narray) _(optional — loaded automatically if present)_
+- [numo-narray](https://github.com/ruby-numo/numo-narray) _(optional — required on demand for Numo output)_
 
 ---
 
@@ -343,4 +359,4 @@ Please include a failing test for bugs and a passing test for features.
 
 ## License
 
-MIT. Go nuts.
+MIT. Go nuts. See [LICENSE](LICENSE).

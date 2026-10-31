@@ -32,6 +32,8 @@ restored = Zfp.decompress(bytes, type: :double, shape: [prices.size],
 
 Metadata (type, shape, mode, params) is embedded in a 32-byte header prepended to the compressed bytes. Pass bytes anywhere — Redis, S3, a message queue — and unpack without needing a schema.
 
+The header is specific to this gem, and the raw `compress` output has no header at all, so neither can be read by the `zfp` command-line tool or other zfp bindings.
+
 ```ruby
 # Pack: embed type/shape/mode/params in the bytes themselves
 packed   = Zfp.pack(prices, type: :double, shape: [prices.size],
@@ -67,7 +69,7 @@ packed = codec.pack(daily_closes["AAPL"])
 
 ## 3. Numo::NArray — auto-detect type and shape
 
-If [numo-narray](https://github.com/ruby-numo/numo-narray) is loaded, `type:` and `shape:` are inferred automatically from the array.
+If you have required [numo-narray](https://github.com/ruby-numo/numo-narray), `type:` and `shape:` are inferred automatically from the array. Requesting Numo output without the gem installed raises `Zfp::NumoNotAvailable`.
 
 ```ruby
 require "numo/narray"

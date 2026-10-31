@@ -17,14 +17,18 @@ The `zfp` gem exposes three layers of API. Choose the one that fits your use cas
 # Module methods
 Zfp.compress(data, type:, shape:, mode:, **params)   → String (bytes)
 Zfp.decompress(bytes, type:, shape:, mode:, numo: false, **params)  → Array | Numo::NArray
-Zfp.pack(data, type: nil, shape: nil, mode:, **params)  → String (bytes with 32-byte header)
+Zfp.pack(data, type: nil, shape: nil, mode:, numo: nil, **params)  → String (bytes with 32-byte header)
 Zfp.unpack(bytes)  → Array | Numo::NArray
 
 # Codec
 codec = Zfp::Codec.new(type:, shape:, mode:, numo: false, **params)
 codec.compress(data)     → String (bytes)
 codec.decompress(bytes)  → Array | Numo::NArray
-codec.pack(data)         → String (bytes with 32-byte header)
+codec.pack(data, numo: nil) → String (bytes with 32-byte header)
+
+# Packed bytes as an object
+packed = Zfp::Packed.new(bytes)   # or Zfp::Packed.load(path)
+packed.unpack / packed.save(path) / packed.bytesize / packed.to_str
 ```
 
 ---
@@ -42,7 +46,7 @@ codec.pack(data)         → String (bytes with 32-byte header)
 
 ### `shape:` — array dimensions
 
-An `Array` of 1–4 positive integers whose product equals the element count:
+An `Array` of 1–4 positive integers, in row-major order (last dimension fastest, as in a flattened nested Array or `Numo::NArray#shape`). The product must equal the element count or `Zfp::InvalidShape` is raised:
 
 ```ruby
 shape: [1000]           # 1-D, 1000 elements
@@ -62,4 +66,4 @@ shape: [4, 8, 16, 16]  # 4-D, 8,192 elements
 
 ### `numo:` — Numo output flag
 
-When `true`, `decompress` returns a `Numo::NArray` instead of a Ruby `Array`. The Numo type is inferred from `type:`.
+When `true`, `decompress` returns a `Numo::NArray` instead of a Ruby `Array`. The Numo class is chosen from `type:`. The gem requires `numo/narray` on demand and raises `Zfp::NumoNotAvailable` if it is not installed. On `pack`, `numo:` sets what `Zfp.unpack` will return; it defaults to `true` for Numo input and `false` for a Ruby `Array`.

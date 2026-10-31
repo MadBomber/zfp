@@ -12,3 +12,6 @@
 
 # mkdocs build output
 /site/
+
+# playwright MCP session data
+/.playwright-mcp/

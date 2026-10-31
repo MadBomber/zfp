@@ -26,7 +26,7 @@ Compresses `data` and returns a plain `String` of compressed bytes.
 
 **Returns:** A `String` of compressed bytes. The caller is responsible for retaining `type`, `shape`, and `mode` for decompression.
 
-**Raises:** `Zfp::InvalidType`, `Zfp::InvalidMode`, `Zfp::InvalidShape`, `Zfp::InvalidParams`, `Zfp::CompressionFailed`
+**Raises:** `Zfp::InvalidType` (unknown type, non-Array data, integer data out of range), `Zfp::InvalidMode` (unknown mode, or a lossy mode with an integer type), `Zfp::InvalidShape` (bad shape, or shape product ≠ element count), `Zfp::InvalidParams`, `Zfp::CompressionFailed`
 
 **Examples:**
 
@@ -65,7 +65,10 @@ Decompresses `bytes` and returns the original data.
 
 **Returns:** A flat Ruby `Array`, or a shaped `Numo::NArray` when `numo: true`.
 
-**Raises:** `Zfp::DecompressionFailed`
+**Raises:** `Zfp::DecompressionFailed` for empty input or a truncated `:fixed_rate` stream; `Zfp::NumoNotAvailable` if `numo: true` and numo-narray is not installed.
+
+!!! warning
+    Mismatched `type:`, `shape:`, `mode:` or params cannot be detected — the raw bytes carry no header. You get a full-size array of garbage, not an error. See [Errors](errors.md#zfpdecompressionfailed).
 
 **Examples:**
 
@@ -83,14 +86,14 @@ back = Zfp.decompress(bytes, type: :double, shape: [50, 252],
 ## `Zfp.pack`
 
 ```ruby
-Zfp.pack(data, type: nil, shape: nil, mode:, **params) → String
+Zfp.pack(data, type: nil, shape: nil, mode:, numo: nil, **params) → String
 ```
 
 Compresses `data` and prepends a 32-byte header containing all metadata. The result is a self-describing byte string that can be decompressed with `Zfp.unpack` without any additional arguments.
 
-**Arguments:** Same as `compress`, plus the same Numo auto-detection.
+**Arguments:** Same as `compress`, plus the same Numo auto-detection, plus `numo:` — whether `Zfp.unpack` should return a `Numo::NArray`. Defaults to `true` for Numo input and `false` for a Ruby `Array`.
 
-**Header format:** The 32-byte header stores magic bytes (`ZFP\x01`), type, mode, dimensionality, shape dimensions, mode parameter (rate/precision/tolerance), and a flag indicating whether the original input was a `Numo::NArray`.
+**Header format:** The 32-byte header stores magic bytes (`ZFP\x02`), type, mode, dimensionality, shape dimensions, mode parameter (rate/precision/tolerance), and a flag indicating whether the original input was a `Numo::NArray`. The header is gem-specific; see [Internals](internals.md#zfppacker) for the layout.
 
 **Returns:** A `String` of `32 + compressed_size` bytes.
 
@@ -99,7 +102,7 @@ Compresses `data` and prepends a 32-byte header containing all metadata. The res
 ```ruby
 packed = Zfp.pack(prices, type: :double, shape: [252],
                           mode: :fixed_accuracy, tolerance: 0.001)
-# => "ZFP\x01..." (32-byte header + compressed body)
+# => "ZFP\x02..." (32-byte header + compressed body)
 
 # Can be stored anywhere and decoded without a schema
 File.write("prices.zfp", packed, mode: "wb")
@@ -120,11 +123,11 @@ Decodes a byte string produced by `pack` or `Zfp::Codec#pack`. Reads all metadat
 
 | Argument | Type | Notes |
 |---|---|---|
-| `bytes` | String | Must have been produced by `pack` |
+| `bytes` | String or `Zfp::Packed` | Must have been produced by `pack` (anything responding to `to_str`) |
 
 **Returns:** Ruby `Array` or `Numo::NArray` — the same type as the original input to `pack`. If the original was a `Numo::NArray`, returns the same Numo class with the original shape.
 
-**Raises:** `Zfp::PackerError` if the header is corrupt or truncated.
+**Raises:** `Zfp::PackerError` if the header is corrupt, truncated, or is a 0.1.0 multi-dimensional header (`ZFP\x01`, transposed layout). `Zfp::NumoNotAvailable` if the header asks for Numo output and numo-narray is not installed.
 
 **Example:**
 

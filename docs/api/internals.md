@@ -12,6 +12,7 @@ Zfp (module methods)
         ├── Zfp::Field      — wraps zfp_field_t (array descriptor)
         ├── Zfp::Stream     — wraps zfp_stream_t + bitstream_t (compression engine)
         ├── Zfp::Packer     — 32-byte header encode/decode
+        ├── Zfp::Packed     — value object around packed bytes (save/load/unpack)
         └── Zfp::TypeCoercion — Ruby Array ↔ FFI::MemoryPointer, Numo integration
               └── Zfp::FFI  — raw libzfp bindings via ruby-ffi
 ```
@@ -62,6 +63,8 @@ A `Field` holds:
 
 The buffer reference is retained as an instance variable to prevent GC while the field is alive.
 
+**Dimension order.** `shape` is row-major (last dimension fastest). libzfp's `nx` is the *fastest*-varying dimension, so `Field` reverses the shape before calling `zfp_field_set_size_*d`: `shape: [50, 252]` becomes `nx = 252, ny = 50`. `Field.zfp_dimensions(shape)` exposes that mapping and `Field.validate_shape!(shape)` is the shape check shared with `Codec`. This is the only place the conversion happens; see [Issue #2](https://github.com/MadBomber/zfp/issues/2).
+
 ```ruby
 field = Zfp::Field.new(:double, [50, 252], buffer)
 field.pointer   # => FFI::Pointer to zfp_field_t
@@ -104,6 +107,8 @@ The stream allocates `zfp_stream_t` and `bitstream_t`, calls `zfp_compress` or `
 3. Open `bitstream_t` over the input
 4. Call `zfp_decompress` into the field's output buffer; raise `DecompressionFailed` if it returns 0
 
+**Input safety.** libzfp's bitstream performs no bounds checking: it reads as many words as the field requires regardless of how many bytes were supplied. `#decompress` therefore raises on empty input, copies the bytes into a zero-filled buffer of at least `zfp_stream_maximum_size`, and for `:fixed_rate` (whose size is exact: `blocks × bits_per_block` rounded up to a 64-bit word, from the rate libzfp actually applied) raises `DecompressionFailed` when the input is shorter than `#fixed_rate_size`. `#actual_rate` exposes the applied rate after a fixed-rate call.
+
 ---
 
 ## `Zfp::TypeCoercion`
@@ -138,7 +143,7 @@ The stream allocates `zfp_stream_t` and `bitstream_t`, calls `zfp_compress` or `
 
 | Bytes | Field | Notes |
 |---|---|---|
-| 0–3 | Magic | `"ZFP\x01"` |
+| 0–3 | Magic | `"ZFP\x02"` (0.2.0+). `"ZFP\x01"` was written by 0.1.0, whose multi-dimensional layout was transposed; `decode` accepts v1 only for rank 1 and raises `PackerError` otherwise |
 | 4 | Type byte | 0=float, 1=double, 2=int32, 3=int64 |
 | 5 | Mode byte | 0=fixed_rate, 1=fixed_precision, 2=fixed_accuracy, 3=reversible |
 | 6 | Rank (dims) | 1–4 |
@@ -155,7 +160,23 @@ The stream allocates `zfp_stream_t` and `bitstream_t`, calls `zfp_compress` or `
 Zfp::Packer.encode(compressed_bytes, type:, shape:, mode:, params: {}, numo: false)
 # => String: 32-byte header + compressed_bytes
 
-Zfp::Packer.decode(bytes)
+Zfp::Packer.decode(bytes)   # bytes: String or anything with #to_str (e.g. Zfp::Packed)
 # => [type, shape, mode, params, numo, compressed_data]
 # raises Zfp::PackerError if header is corrupt
+```
+
+---
+
+## `Zfp::Packed`
+
+`lib/zfp/packed.rb` — A small frozen value object around the bytes produced by `pack`. It responds to `to_str`, so anything that accepts a `String` (including `Zfp.unpack` and `Packer.decode`) accepts a `Packed`.
+
+```ruby
+packed = Zfp::Packed.new(Zfp.pack(data, type: :double, shape: [252], mode: :reversible))
+packed.bytesize        # => Integer
+packed.save("prices.zfp")
+
+loaded = Zfp::Packed.load("prices.zfp")
+loaded == packed       # => true
+loaded.unpack          # => the original data
 ```

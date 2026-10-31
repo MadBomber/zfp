@@ -45,13 +45,14 @@ Typical output (GBM data, seed=42):
 
 | Portfolio | Securities | Raw | Lossless | Ratio | Lossy ±$0.001 | Ratio |
 |---|---|---|---|---|---|---|
-| Aggressive Growth | 17 | 33.5 KB | 31.6 KB | 1.1× | 10.1 KB | 3.3× |
-| Blue Chip Value | 14 | 27.6 KB | 26.0 KB | 1.1× | 8.5 KB | 3.2× |
-| Tech Momentum | 22 | 43.3 KB | 40.6 KB | 1.1× | 13.3 KB | 3.3× |
-| Dividend Income | 13 | 25.6 KB | 24.2 KB | 1.1× | 7.7 KB | 3.3× |
-| Balanced Core | 19 | 37.4 KB | 35.4 KB | 1.1× | 11.2 KB | 3.3× |
+| Aggressive Growth | 16 | 31.5 KB | 28.3 KB | 1.1× | 10.6 KB | 3.0× |
+| Blue Chip Value | 29 | 57.1 KB | 53.2 KB | 1.1× | 20.2 KB | 2.8× |
+| Tech Momentum | 14 | 27.6 KB | 27.5 KB | 1.0× | 10.2 KB | 2.7× |
+| Dividend Income | 20 | 39.4 KB | 35.2 KB | 1.1× | 13.2 KB | 3.0× |
+| Balanced Core | 23 | 45.3 KB | 42.4 KB | 1.1× | 16.2 KB | 2.8× |
+| **Total** | | 200.8 KB | 186.6 KB | 1.1× | 70.5 KB | 2.8× |
 
-GBM output is high-entropy compared to real prices, so lossless ratios are modest (~1.1×). Real correlated market data typically compresses 2×–6× losslessly.
+GBM output is high-entropy compared to real prices: daily returns are independent noise and the securities are uncorrelated, so lossless ratios are modest (~1.1×) and the 2-D layout adds little. Real market data, with correlated sectors and autocorrelated moves, should do better; measure before you rely on a number.
 
 ### Data Integrity Verification
 

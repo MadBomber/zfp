@@ -26,7 +26,7 @@ Zfp::Codec.new(type:, shape:, mode:, numo: false, **params) → Zfp::Codec
 | `precision:` | Integer | if `:fixed_precision` | Significant bits |
 | `tolerance:` | Float | if `:fixed_accuracy` | Max absolute error per element |
 
-**Raises:** `Zfp::InvalidType`, `Zfp::InvalidMode`, `Zfp::InvalidShape`, `Zfp::InvalidParams` at construction time.
+**Raises:** `Zfp::InvalidType`, `Zfp::InvalidMode` (including a lossy mode with an integer type), `Zfp::InvalidShape`, `Zfp::InvalidParams` at construction time.
 
 ---
 
@@ -36,9 +36,11 @@ Zfp::Codec.new(type:, shape:, mode:, numo: false, **params) → Zfp::Codec
 codec.compress(data) → String
 ```
 
-Compresses `data` and returns a plain `String` of compressed bytes. The codec's type, shape, mode, and params are used.
+Compresses `data` and returns a plain `String` of compressed bytes. The codec's type, shape, mode, and params are used. `data` may be a flat or nested Ruby `Array`, or a `Numo::NArray`; its element count must equal the product of the codec's shape.
 
 **Returns:** Compressed bytes (no header).
+
+**Raises:** `Zfp::InvalidShape` if the element count does not match the shape; `Zfp::InvalidType` for integer data out of range or non-Array input.
 
 **Example:**
 
@@ -56,7 +58,7 @@ end
 ## `#decompress`
 
 ```ruby
-codec.decompress(bytes) → Array | Zfp::NArray
+codec.decompress(bytes) → Array | Numo::NArray
 ```
 
 Decompresses bytes produced by this codec (or any codec with the same configuration). Returns a Ruby `Array`, or a `Numo::NArray` if the codec was constructed with `numo: true`.
@@ -77,10 +79,10 @@ result = numo_codec.decompress(bytes)
 ## `#pack`
 
 ```ruby
-codec.pack(data) → String
+codec.pack(data, numo: nil) → String
 ```
 
-Compresses `data` and prepends the 32-byte metadata header, just like `Zfp.pack`. The resulting bytes are self-describing and can be decoded with `Zfp.unpack`.
+Compresses `data` and prepends the 32-byte metadata header, just like `Zfp.pack`. The resulting bytes are self-describing and can be decoded with `Zfp.unpack`. `numo:` sets whether `Zfp.unpack` returns a `Numo::NArray`; by default it does when the codec was built with `numo: true` or the input is a Numo array.
 
 **Example:**
 

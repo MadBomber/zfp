@@ -1,6 +1,6 @@
 # Numo::NArray Integration
 
-If [numo-narray](https://github.com/ruby-numo/numo-narray) is loaded, the gem auto-detects type and shape from Numo arrays on both compress and pack. No `type:` or `shape:` arguments needed.
+If you have required [numo-narray](https://github.com/ruby-numo/numo-narray), the gem auto-detects type and shape from Numo arrays on both compress and pack. No `type:` or `shape:` arguments needed.
 
 ---
 
@@ -31,7 +31,7 @@ closes = Numo::DFloat.cast(daily_prices).reshape(50, 252)
 bytes = Zfp.compress(closes, mode: :fixed_accuracy, tolerance: 0.001)
 ```
 
-This works for all four module methods (`compress`, `decompress` does not use auto-detection since it has no input array) and for `pack`.
+Auto-detection applies to `compress`, `pack`, and `Codec#compress`/`Codec#pack`. `decompress` takes no input array, so it always needs explicit `type:` and `shape:`. The Numo array's shape is used as-is: a `Numo::DFloat[50, 252]` is compressed as a row-major 50 × 252 grid, exactly as a Ruby `shape: [50, 252]` would be.
 
 ---
 
@@ -52,7 +52,7 @@ The returned array has the same shape as specified. Without `numo: true`, a flat
 
 ## Pack / Unpack Preserves the Numo Type
 
-`pack` records whether the input was a Numo array in the 32-byte header. `unpack` returns the same Numo type without any arguments:
+`pack` records whether the input was a Numo array in the 32-byte header. `unpack` returns the same Numo type without any arguments. Pass `numo: true` or `numo: false` to `pack` to override what `unpack` will return:
 
 ```ruby
 packed = Zfp.pack(closes, mode: :reversible)
@@ -60,7 +60,7 @@ result = Zfp.unpack(packed)
 # => Numo::DFloat[50, 252]  — shape and type restored from header
 ```
 
-If the original input was a Ruby `Array`, `unpack` returns a Ruby `Array`.
+If the original input was a Ruby `Array`, `unpack` returns a Ruby `Array` (unless `pack` was given `numo: true`).
 
 ---
 
@@ -134,4 +134,4 @@ result = codec.decompress(bytes)
 
 ## Without Numo
 
-If `numo-narray` is not loaded, passing a `Numo::NArray` raises `Zfp::InvalidType` (since the type cannot be detected), and `numo: true` on decompress simply has no Numo classes to return. Ruby `Array` input and output always work regardless.
+You cannot have a `Numo::NArray` to pass in unless Numo is loaded, so input detection needs no special handling. For output, `numo: true` on `decompress` or a `Codec`, and `Zfp.unpack` on bytes whose header carries the Numo flag, make the gem `require "numo/narray"` on demand. If the gem is not installed that raises `Zfp::NumoNotAvailable` (a `Zfp::Error`), never a bare `NameError`. Ruby `Array` input and output always work regardless.

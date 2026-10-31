@@ -7,7 +7,7 @@
 | Ruby | ≥ 3.0 | |
 | libzfp | 1.0+ | native C library, installed separately |
 | [ffi](https://github.com/ffi/ffi) | ~> 1.0 | installed automatically as a gem dependency |
-| [numo-narray](https://github.com/ruby-numo/numo-narray) | any | optional — loaded automatically if present |
+| [numo-narray](https://github.com/ruby-numo/numo-narray) | any | optional — required on demand for Numo output |
 
 The gem uses [ruby-ffi](https://github.com/ffi/ffi), which means there is **no native compilation step**. `gem install` is instant; the library loads at runtime.
 
@@ -78,7 +78,7 @@ gem install numo-narray
 # or: bundle add numo-narray
 ```
 
-The `zfp` gem detects Numo at runtime — no configuration required. If Numo is not loaded, all Numo-related features are silently unavailable, and plain Ruby Arrays work as normal.
+Numo *input* is detected whenever you have required `numo/narray` yourself. Numo *output* (`numo: true`, or `Zfp.unpack` of bytes packed from a Numo array) makes the gem `require "numo/narray"` on demand; if that fails it raises `Zfp::NumoNotAvailable`. Plain Ruby Arrays work with or without Numo.
 
 ---
 
@@ -92,7 +92,7 @@ bytes = Zfp.compress(data, type: :double, shape: [100], mode: :reversible)
 back  = Zfp.decompress(bytes, type: :double, shape: [100], mode: :reversible)
 
 puts data == back   # => true
-puts Zfp::VERSION   # => 0.1.0
+puts Zfp::VERSION   # => the installed version, e.g. "0.2.0"
 ```
 
 ---
