@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1310,7 +1310,7 @@
 <tr>
 <td><a href="https://github.com/ruby-numo/numo-narray">numo-narray</a></td>
 <td>any</td>
-<td>optional — loaded automatically if present</td>
+<td>optional — required on demand for Numo output</td>
 </tr>
 </tbody>
 </table>
@@ -1327,7 +1327,7 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>apt-get<span class="w"> </span>install<span class="w"> </span>libzfp-dev
 </span></code></pre></div>
 <p>Verify the library is visible to the linker:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ruby<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;require &#39;ffi&#39;; extend FFI::Library; ffi_lib &#39;zfp&#39;; puts &#39;OK&#39;&quot;</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ruby<span class="w"> </span>-e<span class="w"> </span><span class="s2">"require 'ffi'; extend FFI::Library; ffi_lib 'zfp'; puts 'OK'"</span>
 </span></code></pre></div>
 <hr />
 <h2 id="step-2-add-the-gem">Step 2 — Add the gem<a class="headerlink" href="#step-2-add-the-gem" title="Permanent link">&para;</a></h2>
@@ -1335,7 +1335,7 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bundle<span class="w"> </span>add<span class="w"> </span>zfp
 </span></code></pre></div>
 <p>Or add the line to your <code>Gemfile</code> manually:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">gem</span><span class="w"> </span><span class="s2">&quot;zfp&quot;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">gem</span><span class="w"> </span><span class="s2">"zfp"</span>
 </span></code></pre></div>
 <p>Then run:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>bundle<span class="w"> </span>install
@@ -1349,17 +1349,17 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>gem<span class="w"> </span>install<span class="w"> </span>numo-narray
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1"># or: bundle add numo-narray</span>
 </span></code></pre></div>
-<p>The <code>zfp</code> gem detects Numo at runtime — no configuration required. If Numo is not loaded, all Numo-related features are silently unavailable, and plain Ruby Arrays work as normal.</p>
+<p>Numo <em>input</em> is detected whenever you have required <code>numo/narray</code> yourself. Numo <em>output</em> (<code>numo: true</code>, or <code>Zfp.unpack</code> of bytes packed from a Numo array) makes the gem <code>require "numo/narray"</code> on demand; if that fails it raises <code>Zfp::NumoNotAvailable</code>. Plain Ruby Arrays work with or without Numo.</p>
 <hr />
 <h2 id="verifying-the-installation">Verifying the Installation<a class="headerlink" href="#verifying-the-installation" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">&quot;zfp&quot;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"zfp"</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">data</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">i</span><span class="o">|</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">5</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">100</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">back</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">100</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
 </span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nb">puts</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">back</span><span class="w">   </span><span class="c1"># =&gt; true</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nb">puts</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">VERSION</span><span class="w">   </span><span class="c1"># =&gt; 0.1.0</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nb">puts</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">VERSION</span><span class="w">   </span><span class="c1"># =&gt; the installed version, e.g. "0.2.0"</span>
 </span></code></pre></div>
 <hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
@@ -1549,10 +1549,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

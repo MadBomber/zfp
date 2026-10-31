@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1333,13 +1333,14 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Raises:</strong> <code>Zfp::InvalidType</code>, <code>Zfp::InvalidMode</code>, <code>Zfp::InvalidShape</code>, <code>Zfp::InvalidParams</code> at construction time.</p>
+<p><strong>Raises:</strong> <code>Zfp::InvalidType</code>, <code>Zfp::InvalidMode</code> (including a lossy mode with an integer type), <code>Zfp::InvalidShape</code>, <code>Zfp::InvalidParams</code> at construction time.</p>
 <hr />
 <h2 id="compress"><code>#compress</code><a class="headerlink" href="#compress" title="Permanent link">&para;</a></h2>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">codec</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
 </span></code></pre></div>
-<p>Compresses <code>data</code> and returns a plain <code>String</code> of compressed bytes. The codec's type, shape, mode, and params are used.</p>
+<p>Compresses <code>data</code> and returns a plain <code>String</code> of compressed bytes. The codec's type, shape, mode, and params are used. <code>data</code> may be a flat or nested Ruby <code>Array</code>, or a <code>Numo::NArray</code>; its element count must equal the product of the codec's shape.</p>
 <p><strong>Returns:</strong> Compressed bytes (no header).</p>
+<p><strong>Raises:</strong> <code>Zfp::InvalidShape</code> if the element count does not match the shape; <code>Zfp::InvalidType</code> for integer data out of range or non-Array input.</p>
 <p><strong>Example:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Codec</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">100</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
@@ -1350,11 +1351,11 @@
 </span></code></pre></div>
 <hr />
 <h2 id="decompress"><code>#decompress</code><a class="headerlink" href="#decompress" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">Array</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">NArray</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">Array</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="no">Numo</span><span class="o">::</span><span class="no">NArray</span>
 </span></code></pre></div>
 <p>Decompresses bytes produced by this codec (or any codec with the same configuration). Returns a Ruby <code>Array</code>, or a <code>Numo::NArray</code> if the codec was constructed with <code>numo: true</code>.</p>
 <p><strong>Example:</strong></p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">store</span><span class="o">[</span><span class="s2">&quot;AAPL&quot;</span><span class="o">]</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">store</span><span class="o">[</span><span class="s2">"AAPL"</span><span class="o">]</span><span class="p">)</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># =&gt; Array of 100 Floats</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">numo_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Codec</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
@@ -1363,9 +1364,9 @@
 </span></code></pre></div>
 <hr />
 <h2 id="pack"><code>#pack</code><a class="headerlink" href="#pack" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
 </span></code></pre></div>
-<p>Compresses <code>data</code> and prepends the 32-byte metadata header, just like <code>Zfp.pack</code>. The resulting bytes are self-describing and can be decoded with <code>Zfp.unpack</code>.</p>
+<p>Compresses <code>data</code> and prepends the 32-byte metadata header, just like <code>Zfp.pack</code>. The resulting bytes are self-describing and can be decoded with <code>Zfp.unpack</code>. <code>numo:</code> sets whether <code>Zfp.unpack</code> returns a <code>Numo::NArray</code>; by default it does when the codec was built with <code>numo: true</code> or the input is a Numo array.</p>
 <p><strong>Example:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">codec</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Codec</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">50</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -1378,11 +1379,11 @@
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Redis</span><span class="o">.</span><span class="n">new</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="no">TICKERS</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">ticker</span><span class="o">|</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;close:</span><span class="si">#{</span><span class="n">ticker</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">closes</span><span class="o">[</span><span class="n">ticker</span><span class="o">]</span><span class="p">))</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"close:</span><span class="si">#{</span><span class="n">ticker</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">closes</span><span class="o">[</span><span class="n">ticker</span><span class="o">]</span><span class="p">))</span>
 </span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">end</span>
 </span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
 </span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1"># Later</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;close:AAPL&quot;</span><span class="p">))</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">codec</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"close:AAPL"</span><span class="p">))</span>
 </span></code></pre></div>
 <h3 id="codec-with-numo-round-trip">Codec with Numo round-trip<a class="headerlink" href="#codec-with-numo-round-trip" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Codec</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">252</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
@@ -1574,10 +1575,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

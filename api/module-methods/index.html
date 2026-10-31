@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1233,7 +1233,7 @@
 </tbody>
 </table>
 <p><strong>Returns:</strong> A <code>String</code> of compressed bytes. The caller is responsible for retaining <code>type</code>, <code>shape</code>, and <code>mode</code> for decompression.</p>
-<p><strong>Raises:</strong> <code>Zfp::InvalidType</code>, <code>Zfp::InvalidMode</code>, <code>Zfp::InvalidShape</code>, <code>Zfp::InvalidParams</code>, <code>Zfp::CompressionFailed</code></p>
+<p><strong>Raises:</strong> <code>Zfp::InvalidType</code> (unknown type, non-Array data, integer data out of range), <code>Zfp::InvalidMode</code> (unknown mode, or a lossy mode with an integer type), <code>Zfp::InvalidShape</code> (bad shape, or shape product ≠ element count), <code>Zfp::InvalidParams</code>, <code>Zfp::CompressionFailed</code></p>
 <p><strong>Examples:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Lossless</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">.</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">3</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
@@ -1300,7 +1300,11 @@
 </tbody>
 </table>
 <p><strong>Returns:</strong> A flat Ruby <code>Array</code>, or a shaped <code>Numo::NArray</code> when <code>numo: true</code>.</p>
-<p><strong>Raises:</strong> <code>Zfp::DecompressionFailed</code></p>
+<p><strong>Raises:</strong> <code>Zfp::DecompressionFailed</code> for empty input or a truncated <code>:fixed_rate</code> stream; <code>Zfp::NumoNotAvailable</code> if <code>numo: true</code> and numo-narray is not installed.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Mismatched <code>type:</code>, <code>shape:</code>, <code>mode:</code> or params cannot be detected — the raw bytes carry no header. You get a full-size array of garbage, not an error. See <a href="../errors/#zfpdecompressionfailed">Errors</a>.</p>
+</div>
 <p><strong>Examples:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">back</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">1000</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># =&gt; Array of 1000 Floats</span>
@@ -1311,20 +1315,20 @@
 </span></code></pre></div>
 <hr />
 <h2 id="zfppack"><code>Zfp.pack</code><a class="headerlink" href="#zfppack" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:,</span><span class="w"> </span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:,</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nb">String</span>
 </span></code></pre></div>
 <p>Compresses <code>data</code> and prepends a 32-byte header containing all metadata. The result is a self-describing byte string that can be decompressed with <code>Zfp.unpack</code> without any additional arguments.</p>
-<p><strong>Arguments:</strong> Same as <code>compress</code>, plus the same Numo auto-detection.</p>
-<p><strong>Header format:</strong> The 32-byte header stores magic bytes (<code>ZFP\x01</code>), type, mode, dimensionality, shape dimensions, mode parameter (rate/precision/tolerance), and a flag indicating whether the original input was a <code>Numo::NArray</code>.</p>
+<p><strong>Arguments:</strong> Same as <code>compress</code>, plus the same Numo auto-detection, plus <code>numo:</code> — whether <code>Zfp.unpack</code> should return a <code>Numo::NArray</code>. Defaults to <code>true</code> for Numo input and <code>false</code> for a Ruby <code>Array</code>.</p>
+<p><strong>Header format:</strong> The 32-byte header stores magic bytes (<code>ZFP\x02</code>), type, mode, dimensionality, shape dimensions, mode parameter (rate/precision/tolerance), and a flag indicating whether the original input was a <code>Numo::NArray</code>. The header is gem-specific; see <a href="../internals/#zfppacker">Internals</a> for the layout.</p>
 <p><strong>Returns:</strong> A <code>String</code> of <code>32 + compressed_size</code> bytes.</p>
 <p><strong>Example:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">252</span><span class="o">]</span><span class="p">,</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">                          </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># =&gt; &quot;ZFP\x01...&quot; (32-byte header + compressed body)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># =&gt; "ZFP\x02..." (32-byte header + compressed body)</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Can be stored anywhere and decoded without a schema</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="no">File</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;prices.zfp&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">packed</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wb&quot;</span><span class="p">)</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="no">Redis</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;prices:AAPL&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">packed</span><span class="p">)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="no">File</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">,</span><span class="w"> </span><span class="n">packed</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="s2">"wb"</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="no">Redis</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"prices:AAPL"</span><span class="p">,</span><span class="w"> </span><span class="n">packed</span><span class="p">)</span>
 </span></code></pre></div>
 <hr />
 <h2 id="zfpunpack"><code>Zfp.unpack</code><a class="headerlink" href="#zfpunpack" title="Permanent link">&para;</a></h2>
@@ -1343,13 +1347,13 @@
 <tbody>
 <tr>
 <td><code>bytes</code></td>
-<td>String</td>
-<td>Must have been produced by <code>pack</code></td>
+<td>String or <code>Zfp::Packed</code></td>
+<td>Must have been produced by <code>pack</code> (anything responding to <code>to_str</code>)</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Returns:</strong> Ruby <code>Array</code> or <code>Numo::NArray</code> — the same type as the original input to <code>pack</code>. If the original was a <code>Numo::NArray</code>, returns the same Numo class with the original shape.</p>
-<p><strong>Raises:</strong> <code>Zfp::PackerError</code> if the header is corrupt or truncated.</p>
+<p><strong>Raises:</strong> <code>Zfp::PackerError</code> if the header is corrupt, truncated, or is a 0.1.0 multi-dimensional header (<code>ZFP\x01</code>, transposed layout). <code>Zfp::NumoNotAvailable</code> if the header asks for Numo output and numo-narray is not installed.</p>
 <p><strong>Example:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">packed</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span><span class="w">  </span><span class="c1"># matrix is Numo::DFloat[50, 252]</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">restored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
@@ -1529,10 +1533,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

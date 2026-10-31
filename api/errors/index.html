@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -820,6 +820,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#zfpnumonotavailable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zfp::NumoNotAvailable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#zfpinvalidtype" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1134,6 +1145,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#zfpnumonotavailable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zfp::NumoNotAvailable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#zfpinvalidtype" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1309,13 +1331,14 @@
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>StandardError
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── Zfp::Error
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── Zfp::LibraryNotFound
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ├── Zfp::InvalidType
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    ├── Zfp::InvalidMode
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ├── Zfp::InvalidShape
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    ├── Zfp::InvalidParams
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    ├── Zfp::CompressionFailed
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    ├── Zfp::DecompressionFailed
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    └── Zfp::PackerError
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ├── Zfp::NumoNotAvailable
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    ├── Zfp::InvalidType
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ├── Zfp::InvalidMode
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    ├── Zfp::InvalidShape
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    ├── Zfp::InvalidParams
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    ├── Zfp::CompressionFailed
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    ├── Zfp::DecompressionFailed
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    └── Zfp::PackerError
 </span></code></pre></div>
 <hr />
 <h2 id="zfplibrarynotfound"><code>Zfp::LibraryNotFound</code><a class="headerlink" href="#zfplibrarynotfound" title="Permanent link">&para;</a></h2>
@@ -1323,36 +1346,55 @@
 <p><strong>When:</strong> The FFI layer fails to load the native <code>zfp</code> library.</p>
 <p><strong>Resolution:</strong> Install <code>libzfp</code> — see <a href="../../installation/">Installation</a>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">rescue</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">LibraryNotFound</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">&quot;ZFP not available: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">"ZFP not available: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="c1"># Fall back to uncompressed storage</span>
 </span></code></pre></div>
 <hr />
+<h2 id="zfpnumonotavailable"><code>Zfp::NumoNotAvailable</code><a class="headerlink" href="#zfpnumonotavailable" title="Permanent link">&para;</a></h2>
+<p>Raised when Numo output is requested but the <code>numo-narray</code> gem is not installed.</p>
+<p><strong>When:</strong> <code>decompress(..., numo: true)</code>, a <code>Codec</code> built with <code>numo: true</code>, or <code>Zfp.unpack</code> on bytes whose header records that the input was a <code>Numo::NArray</code>. The gem attempts <code>require "numo/narray"</code> on demand first; this error means that require failed.</p>
+<p><strong>Resolution:</strong> <code>gem install numo-narray</code>, or request a Ruby <code>Array</code> instead.</p>
+<hr />
 <h2 id="zfpinvalidtype"><code>Zfp::InvalidType</code><a class="headerlink" href="#zfpinvalidtype" title="Permanent link">&para;</a></h2>
-<p>Raised when <code>type:</code> is not one of the four supported symbols.</p>
+<p>Raised when <code>type:</code> is not one of the four supported symbols, or when the data does not fit the declared type.</p>
 <p><strong>Valid values:</strong> <code>:float</code>, <code>:double</code>, <code>:int32</code>, <code>:int64</code></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:complex</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">10</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># =&gt; Zfp::InvalidType: Unknown type: :complex. Valid: [:float, :double, :int32, :int64]</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="o">.</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">7</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:int32</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># =&gt; Zfp::InvalidType: int32 data must be Integers in -2147483648..2147483647, got 1.9</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="o">[</span><span class="mi">2</span><span class="o">**</span><span class="mi">40</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:int32</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># =&gt; Zfp::InvalidType: int32 data must be Integers in -2147483648..2147483647, got 1099511627776</span>
 </span></code></pre></div>
-<p>Also raised when a <code>Numo::NArray</code> subtype is not supported (e.g. <code>Numo::UInt8</code>).</p>
+<p>Also raised when <code>type:</code> is omitted for a Ruby <code>Array</code> (it can only be inferred for Numo input), when <code>data</code> is neither an <code>Array</code> nor a <code>Numo::NArray</code>, and when a <code>Numo::NArray</code> subtype is not supported (e.g. <code>Numo::UInt8</code>).</p>
+<p>Float types accept Ruby <code>Integer</code>s and <code>Float</code>s; anything else raises a <code>TypeError</code> from <code>Array#pack</code>.</p>
 <hr />
 <h2 id="zfpinvalidmode"><code>Zfp::InvalidMode</code><a class="headerlink" href="#zfpinvalidmode" title="Permanent link">&para;</a></h2>
-<p>Raised when <code>mode:</code> is not one of the four supported symbols.</p>
+<p>Raised when <code>mode:</code> is not one of the four supported symbols, or when a lossy mode is combined with an integer type.</p>
 <p><strong>Valid values:</strong> <code>:reversible</code>, <code>:fixed_rate</code>, <code>:fixed_precision</code>, <code>:fixed_accuracy</code></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">10</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:lz4</span><span class="p">)</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># =&gt; Zfp::InvalidMode: Unknown mode: :lz4. Valid: [:fixed_rate, :fixed_precision, :fixed_accuracy, :reversible]</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:int32</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">10</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_rate</span><span class="p">,</span><span class="w"> </span><span class="ss">rate</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># =&gt; Zfp::InvalidMode: int32 supports mode: :reversible only (got :fixed_rate)</span>
 </span></code></pre></div>
 <hr />
 <h2 id="zfpinvalidshape"><code>Zfp::InvalidShape</code><a class="headerlink" href="#zfpinvalidshape" title="Permanent link">&para;</a></h2>
-<p>Raised when <code>shape:</code> is not a valid array of 1–4 positive integers.</p>
+<p>Raised when <code>shape:</code> is not a valid array of 1–4 positive integers, or when its product does not equal the number of elements in the data.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[]</span><span class="p">,</span><span class="w">        </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># =&gt; Zfp::InvalidShape: shape must be Array of 1–4 positive integers</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># =&gt; Zfp::InvalidShape: shape must be an Array of 1–4 positive integers</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="o">]</span><span class="p">,</span><span class="w">  </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># =&gt; Zfp::InvalidShape: shape must be Array of 1–4 positive integers</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># =&gt; Zfp::InvalidShape: shape must be an Array of 1–4 positive integers</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># =&gt; Zfp::InvalidShape: shape must be Array of 1–4 positive integers</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># =&gt; Zfp::InvalidShape: shape must be an Array of 1–4 positive integers</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">ten_values</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">100</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="c1"># =&gt; Zfp::InvalidShape: shape [100] describes 100 elements but data has 10</span>
 </span></code></pre></div>
+<p>Also raised when <code>shape:</code> is omitted for a Ruby <code>Array</code>. The element-count check is a safety check: without it, libzfp would read past the end of the data buffer.</p>
 <hr />
 <h2 id="zfpinvalidparams"><code>Zfp::InvalidParams</code><a class="headerlink" href="#zfpinvalidparams" title="Permanent link">&para;</a></h2>
 <p>Raised when a mode-specific parameter is missing, not the right type, or out of range.</p>
@@ -1371,33 +1413,37 @@
 <hr />
 <h2 id="zfpcompressionfailed"><code>Zfp::CompressionFailed</code><a class="headerlink" href="#zfpcompressionfailed" title="Permanent link">&para;</a></h2>
 <p>Raised when <code>libzfp</code> returns 0 bytes written during compression.</p>
-<p>This should not happen under normal conditions. It typically indicates a bug in the gem, a corrupt <code>libzfp</code> build, or a shape/type mismatch.</p>
+<p>This should not happen under normal conditions. It typically indicates a bug in the gem or a corrupt <code>libzfp</code> build.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">rescue</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">CompressionFailed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">&quot;ZFP compression failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">"ZFP compression failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span>
 </span></code></pre></div>
 <hr />
 <h2 id="zfpdecompressionfailed"><code>Zfp::DecompressionFailed</code><a class="headerlink" href="#zfpdecompressionfailed" title="Permanent link">&para;</a></h2>
-<p>Raised when <code>libzfp</code> returns 0 bytes read during decompression.</p>
-<p><strong>Common causes:</strong></p>
+<p>Raised when decompression is given input that is provably unusable:</p>
 <ul>
-<li>Wrong <code>type:</code>, <code>shape:</code>, or <code>mode:</code> on decompress (must match compress)</li>
-<li>Wrong mode params (e.g. different <code>tolerance:</code> than used during compression)</li>
-<li>Corrupt or truncated compressed bytes</li>
+<li>An empty byte string.</li>
+<li>A <code>:fixed_rate</code> stream shorter than its known exact size (truncated).</li>
+<li><code>libzfp</code> returning 0 bytes read.</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Most mismatches cannot be detected</p>
+<p>The raw bytes from <code>compress</code> carry no header, so libzfp has no way to know what type, shape, mode, or parameters produced them. Decompressing with the wrong <code>type:</code>, <code>shape:</code>, <code>mode:</code>, <code>rate:</code>, <code>precision:</code> or <code>tolerance:</code>, or with truncated or corrupt bytes in a variable-rate mode, does <strong>not</strong> raise: it returns an array of the requested size containing garbage. The gem guarantees only that this cannot crash the process or read past the input (short input is zero-padded internally). If you need to detect such mismatches, use <code>pack</code>/<code>unpack</code>, which store the parameters in a header, and keep a checksum of the payload.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">rescue</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">DecompressionFailed</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">&quot;ZFP decompression failed — check that type/shape/mode match: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">"ZFP decompression failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span>
 </span></code></pre></div>
 <hr />
 <h2 id="zfppackererror"><code>Zfp::PackerError</code><a class="headerlink" href="#zfppackererror" title="Permanent link">&para;</a></h2>
-<p>Raised when <code>Zfp.unpack</code> receives a byte string with a corrupt or missing header.</p>
+<p>Raised when <code>Zfp.unpack</code> receives a byte string with a corrupt, missing, or unsupported header.</p>
 <p><strong>Common causes:</strong></p>
 <ul>
 <li>Truncated bytes (less than 32 bytes)</li>
 <li>Wrong magic bytes (data was not produced by <code>pack</code>)</li>
-<li>Bit-flip or storage corruption</li>
+<li>Unknown type or mode byte (bit-flip or storage corruption)</li>
+<li>Multi-dimensional data packed by gem version 0.1.0 (<code>ZFP\x01</code> header), whose layout was transposed — see <a href="../../multi-dimensional/#data-layout">Multi-Dimensional Arrays</a></li>
 </ul>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">rescue</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">PackerError</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">&quot;Corrupt ZFP pack header: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nb">warn</span><span class="w"> </span><span class="s2">"Corrupt ZFP pack header: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span>
 </span></code></pre></div>
 <hr />
 <h2 id="catching-all-gem-errors">Catching All Gem Errors<a class="headerlink" href="#catching-all-gem-errors" title="Permanent link">&para;</a></h2>
@@ -1406,7 +1452,7 @@
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="n">restored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
 </span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">rescue</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Error</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
 </span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="c1"># Covers LibraryNotFound, InvalidType, CompressionFailed, PackerError, etc.</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ZFP error: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> — </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"ZFP error: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> — </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">end</span>
 </span></code></pre></div>
 
@@ -1583,10 +1629,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

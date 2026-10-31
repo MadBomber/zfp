@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1214,7 +1214,7 @@
 
 
 <h1 id="numonarray-integration">Numo::NArray Integration<a class="headerlink" href="#numonarray-integration" title="Permanent link">&para;</a></h1>
-<p>If <a href="https://github.com/ruby-numo/numo-narray">numo-narray</a> is loaded, the gem auto-detects type and shape from Numo arrays on both compress and pack. No <code>type:</code> or <code>shape:</code> arguments needed.</p>
+<p>If you have required <a href="https://github.com/ruby-numo/numo-narray">numo-narray</a>, the gem auto-detects type and shape from Numo arrays on both compress and pack. No <code>type:</code> or <code>shape:</code> arguments needed.</p>
 <hr />
 <h2 id="supported-numo-types">Supported Numo Types<a class="headerlink" href="#supported-numo-types" title="Permanent link">&para;</a></h2>
 <table>
@@ -1252,15 +1252,15 @@
 <hr />
 <h2 id="auto-detection-on-input">Auto-Detection on Input<a class="headerlink" href="#auto-detection-on-input" title="Permanent link">&para;</a></h2>
 <p>When the input is a <code>Numo::NArray</code>, <code>type:</code> and <code>shape:</code> are inferred automatically:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">&quot;numo/narray&quot;</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">require</span><span class="w"> </span><span class="s2">&quot;zfp&quot;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"numo/narray"</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"zfp"</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">closes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Numo</span><span class="o">::</span><span class="no">DFloat</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">daily_prices</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">252</span><span class="p">)</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># type: :double and shape: [50, 252] are detected automatically</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">closes</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
 </span></code></pre></div>
-<p>This works for all four module methods (<code>compress</code>, <code>decompress</code> does not use auto-detection since it has no input array) and for <code>pack</code>.</p>
+<p>Auto-detection applies to <code>compress</code>, <code>pack</code>, and <code>Codec#compress</code>/<code>Codec#pack</code>. <code>decompress</code> takes no input array, so it always needs explicit <code>type:</code> and <code>shape:</code>. The Numo array's shape is used as-is: a <code>Numo::DFloat[50, 252]</code> is compressed as a row-major 50 × 252 grid, exactly as a Ruby <code>shape: [50, 252]</code> would be.</p>
 <hr />
 <h2 id="getting-a-numo-array-back-on-decompress">Getting a Numo Array Back on Decompress<a class="headerlink" href="#getting-a-numo-array-back-on-decompress" title="Permanent link">&para;</a></h2>
 <p>Pass <code>numo: true</code> to <code>decompress</code> to get a <code>Numo::NArray</code> instead of a Ruby <code>Array</code>:</p>
@@ -1272,16 +1272,16 @@
 <p>The returned array has the same shape as specified. Without <code>numo: true</code>, a flat Ruby <code>Array</code> is returned.</p>
 <hr />
 <h2 id="pack-unpack-preserves-the-numo-type">Pack / Unpack Preserves the Numo Type<a class="headerlink" href="#pack-unpack-preserves-the-numo-type" title="Permanent link">&para;</a></h2>
-<p><code>pack</code> records whether the input was a Numo array in the 32-byte header. <code>unpack</code> returns the same Numo type without any arguments:</p>
+<p><code>pack</code> records whether the input was a Numo array in the 32-byte header. <code>unpack</code> returns the same Numo type without any arguments. Pass <code>numo: true</code> or <code>numo: false</code> to <code>pack</code> to override what <code>unpack</code> will return:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">closes</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">packed</span><span class="p">)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># =&gt; Numo::DFloat[50, 252]  — shape and type restored from header</span>
 </span></code></pre></div>
-<p>If the original input was a Ruby <code>Array</code>, <code>unpack</code> returns a Ruby <code>Array</code>.</p>
+<p>If the original input was a Ruby <code>Array</code>, <code>unpack</code> returns a Ruby <code>Array</code> (unless <code>pack</code> was given <code>numo: true</code>).</p>
 <hr />
 <h2 id="all-four-types-full-example">All Four Types — Full Example<a class="headerlink" href="#all-four-types-full-example" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">&quot;numo/narray&quot;</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">require</span><span class="w"> </span><span class="s2">&quot;zfp&quot;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"numo/narray"</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">require</span><span class="w"> </span><span class="s2">"zfp"</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># SFloat</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">sf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Numo</span><span class="o">::</span><span class="no">SFloat</span><span class="o">.</span><span class="n">cast</span><span class="p">((</span><span class="mi">1</span><span class="o">..</span><span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">i</span><span class="o">|</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">5</span><span class="w"> </span><span class="p">})</span>
@@ -1334,7 +1334,7 @@
 </span></code></pre></div>
 <hr />
 <h2 id="without-numo">Without Numo<a class="headerlink" href="#without-numo" title="Permanent link">&para;</a></h2>
-<p>If <code>numo-narray</code> is not loaded, passing a <code>Numo::NArray</code> raises <code>Zfp::InvalidType</code> (since the type cannot be detected), and <code>numo: true</code> on decompress simply has no Numo classes to return. Ruby <code>Array</code> input and output always work regardless.</p>
+<p>You cannot have a <code>Numo::NArray</code> to pass in unless Numo is loaded, so input detection needs no special handling. For output, <code>numo: true</code> on <code>decompress</code> or a <code>Codec</code>, and <code>Zfp.unpack</code> on bytes whose header carries the Numo flag, make the gem <code>require "numo/narray"</code> on demand. If the gem is not installed that raises <code>Zfp::NumoNotAvailable</code> (a <code>Zfp::Error</code>), never a bare <code>NameError</code>. Ruby <code>Array</code> input and output always work regardless.</p>
 
 
 
@@ -1509,10 +1509,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1171,9 +1171,10 @@
 
 <h1 id="compression-modes">Compression Modes<a class="headerlink" href="#compression-modes" title="Permanent link">&para;</a></h1>
 <p>ZFP offers four compression modes. Choosing the right one determines whether you get a lossless round-trip, a guaranteed error bound, a fixed output size, or a specific number of significant bits.</p>
+<p>All ratios on this page were measured with this gem on the data described. Your data will differ; the <a href="#choosing-a-tolerance">tolerance sweep</a> below shows how to measure your own.</p>
 <hr />
 <h2 id="reversible-lossless-bit-exact"><code>:reversible</code> — Lossless, Bit-Exact<a class="headerlink" href="#reversible-lossless-bit-exact" title="Permanent link">&para;</a></h2>
-<p>Use this when correctness is non-negotiable. Every bit survives the round-trip.</p>
+<p>Use this when correctness is non-negotiable. Every bit survives the round-trip, including NaN, ±Infinity, and −0.0.</p>
 <p><strong>Works with:</strong> <code>:float</code>, <code>:double</code>, <code>:int32</code>, <code>:int64</code></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">back</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
@@ -1187,29 +1188,42 @@
 <li>Integer data (<code>:int32</code>, <code>:int64</code> support only this mode)</li>
 <li>When you don't know the acceptable error for your downstream consumers</li>
 </ul>
-<p><strong>Typical compression ratios:</strong></p>
+<p><strong>Measured compression ratios:</strong></p>
 <table>
 <thead>
 <tr>
-<th>Data type</th>
+<th>Data</th>
 <th>Ratio</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Smooth financial time series</td>
-<td>2×–6×</td>
+<td>Simulated (GBM) daily closes, 14–29 securities × 252 days, double</td>
+<td>1.0×–1.1×</td>
+</tr>
+<tr>
+<td>Sinusoid, 256 doubles</td>
+<td>1.1×</td>
+</tr>
+<tr>
+<td>Sequential integers <code>1..128</code>, int32</td>
+<td>2.7×</td>
+</tr>
+<tr>
+<td><code>i * 1.5</code> for <code>i</code> in <code>1..128</code>, double</td>
+<td>5.8×</td>
+</tr>
+<tr>
+<td>100 × 120 grid where every row is the ramp <code>0..119</code>, float</td>
+<td>15.3×</td>
 </tr>
 <tr>
 <td>High-entropy noise</td>
-<td>≤ 1.1× (may grow)</td>
-</tr>
-<tr>
-<td>Integer sequences</td>
-<td>2×–8×</td>
+<td>≤ 1.0× (may grow slightly)</td>
 </tr>
 </tbody>
 </table>
+<p>Lossless ratios are driven entirely by how predictable neighboring values are. Real market prices (correlated sectors, autocorrelated returns) should fall between the GBM and sinusoid rows, but measure before you plan around a number.</p>
 <hr />
 <h2 id="fixed_accuracy-absolute-error-bound"><code>:fixed_accuracy</code> — Absolute Error Bound<a class="headerlink" href="#fixed_accuracy-absolute-error-bound" title="Permanent link">&para;</a></h2>
 <p>The workhorse for financial and ML workloads. You specify a maximum per-element absolute error; ZFP uses as few bits as needed to honor it.</p>
@@ -1219,38 +1233,62 @@
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">back</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="p">,</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">                              </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="p">)</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Every element satisfies: (original - restored).abs &lt;= tolerance</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Every finite element satisfies: (original - restored).abs &lt;= tolerance</span>
 </span></code></pre></div>
 <p><strong>Parameter:</strong> <code>tolerance: Float</code> — maximum absolute error per element, must be &gt; 0.</p>
-<p><strong>Typical compression ratios:</strong></p>
+<div class="admonition warning">
+<p class="admonition-title">NaN and Infinity are not preserved in lossy modes</p>
+<p>ZFP's lossy modes operate on finite values only. A NaN or ±Infinity in the input comes back as a finite value (typically 0.0) and can disturb the other values in its 4-element block. Use <code>:reversible</code> for data that may contain non-finite values, or sanitize first.</p>
+</div>
+<p><strong>Measured compression ratios:</strong></p>
 <table>
 <thead>
 <tr>
+<th>Data</th>
 <th>Tolerance</th>
-<th>Ratio (financial closes)</th>
-<th>Max error</th>
+<th>Ratio</th>
+<th>Max error observed</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>Simulated daily closes (double, 2-D)</td>
 <td><code>0.001</code></td>
-<td>3.0×–3.4×</td>
-<td>&lt; $0.001</td>
+<td>2.7×–3.0×</td>
+<td>$0.00035</td>
 </tr>
 <tr>
-<td><code>0.01</code></td>
-<td>3.4×–4.0×</td>
-<td>&lt; $0.01</td>
+<td>Sinusoid × 1000, 256 doubles</td>
+<td><code>0.001</code></td>
+<td>2.8×</td>
+<td>5.0e-4</td>
 </tr>
 <tr>
+<td>Sinusoid × 1000, 256 doubles</td>
+<td><code>0.1</code></td>
+<td>3.7×</td>
+<td>2.8e-2</td>
+</tr>
+<tr>
+<td>Sinusoid × 1000, 256 doubles</td>
 <td><code>1.0</code></td>
-<td>5×–8×</td>
-<td>&lt; $1.00</td>
+<td>4.8×</td>
+<td>4.4e-1</td>
+</tr>
+<tr>
+<td>Uniform random × 1000, 10,000 doubles</td>
+<td><code>0.001</code></td>
+<td>2.5×</td>
+<td>5.8e-4</td>
+</tr>
+<tr>
+<td>Uniform random × 1000, 10,000 doubles</td>
+<td><code>1.0</code></td>
+<td>4.1×</td>
+<td>6.0e-1</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Financial data note:</strong> ZFP shines brightest on correlated data. Real market prices (correlated sectors, macro moves, mean reversion) compress significantly better than synthetic GBM data. The ratios above are conservative baselines from synthetic data.</p>
-<p><strong>ML embeddings note:</strong> For 1536-dim float32 vectors with high spatial correlation, expect 4×–10× with a tolerance tuned to preserve cosine similarity.</p>
 <p><strong>Choosing a tolerance:</strong></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Run a sample before committing to a tolerance</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">sample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recent_prices</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
@@ -1261,48 +1299,38 @@
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">                                </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="n">tol</span><span class="p">)</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="n">max_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sample</span><span class="o">.</span><span class="n">zip</span><span class="p">(</span><span class="n">back</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="w"> </span><span class="p">}</span><span class="o">.</span><span class="n">max</span>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="n">ratio</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">1000</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">8</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">bytes</span><span class="o">.</span><span class="n">bytesize</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;tol=</span><span class="si">#{</span><span class="n">tol</span><span class="si">}</span><span class="s2">  ratio=</span><span class="si">#{</span><span class="n">ratio</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">x  max_err=</span><span class="si">#{</span><span class="n">max_err</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">"tol=</span><span class="si">#{</span><span class="n">tol</span><span class="si">}</span><span class="s2">  ratio=</span><span class="si">#{</span><span class="n">ratio</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">x  max_err=</span><span class="si">#{</span><span class="n">max_err</span><span class="si">}</span><span class="s2">"</span>
 </span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">end</span>
 </span></code></pre></div>
 <hr />
 <h2 id="fixed_precision-significant-bits"><code>:fixed_precision</code> — Significant Bits<a class="headerlink" href="#fixed_precision-significant-bits" title="Permanent link">&para;</a></h2>
-<p>Useful when you want to preserve a specific number of significant bits rather than an absolute error bound. Handy for scientific data where relative precision matters more than absolute.</p>
+<p>Useful when relative precision matters more than an absolute error bound: large values keep more absolute precision than small ones.</p>
 <p><strong>Works with:</strong> <code>:float</code>, <code>:double</code></p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="p">,</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">                           </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_precision</span><span class="p">,</span><span class="w"> </span><span class="ss">precision</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">back</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="p">,</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">                              </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_precision</span><span class="p">,</span><span class="w"> </span><span class="ss">precision</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
 </span></code></pre></div>
-<p><strong>Parameter:</strong> <code>precision: Integer</code> — number of uncompressed bits per value to preserve, must be &gt; 0. A double has 52 mantissa bits; a float has 23.</p>
-<p><strong>Guidance:</strong></p>
+<p><strong>Parameter:</strong> <code>precision: Integer</code> — the number of bits ZFP keeps for each transform coefficient, must be &gt; 0. The useful range is 1–64 for <code>:double</code> and 1–32 for <code>:float</code>. This is <em>not</em> a mantissa-bit count: ZFP applies a block transform before quantizing, so <code>precision</code> controls the bit budget of the transformed values. Error is relative to the largest magnitude in each 4-element block.</p>
+<p><strong>Measured on a sinusoid × 1000 (256 doubles):</strong></p>
 <table>
 <thead>
 <tr>
 <th>Precision</th>
-<th>Relative accuracy</th>
-<th>Notes</th>
+<th>Ratio</th>
+<th>Max error</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>52 (double)</td>
-<td>Full precision</td>
-<td>Equivalent to lossless for most inputs</td>
+<td>24</td>
+<td>2.7×</td>
+<td>5.0e-4</td>
 </tr>
 <tr>
-<td>32</td>
-<td>~10 decimal digits</td>
-<td>Indistinguishable from double for most science</td>
-</tr>
-<tr>
-<td>20</td>
-<td>~6 decimal digits</td>
-<td>Good for physics simulations</td>
-</tr>
-<tr>
-<td>10</td>
-<td>~3 decimal digits</td>
-<td>Heavy lossy; use with care</td>
+<td>12</td>
+<td>5.4×</td>
+<td>1.6</td>
 </tr>
 </tbody>
 </table>
@@ -1316,35 +1344,45 @@
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">                              </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_rate</span><span class="p">,</span><span class="w"> </span><span class="ss">rate</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
 </span></code></pre></div>
 <p><strong>Parameter:</strong> <code>rate: Float</code> — bits per scalar value, must be &gt; 0. A raw double is 64 bits; a raw float is 32 bits.</p>
-<p><strong>Compression ratios by rate (double):</strong></p>
+<p><strong>Output size:</strong> <code>rate × element_count / 8</code> bytes, rounded up to the next 8-byte stream word, for shapes whose dimensions are multiples of 4. Other shapes are padded to whole 4-element blocks first.</p>
+<div class="admonition note">
+<p class="admonition-title">libzfp enforces a minimum rate</p>
+<p>Each block needs a few bits of overhead, so libzfp rounds very low rates up. For 1-D doubles the floor is about 3 bits per value: <code>rate: 1.0</code> and <code>rate: 2.0</code> both produce the same output as <code>rate: 3.0</code>. The floor is lower in higher dimensions (16 values per 2-D block instead of 4). The gem sizes its buffers from the rate libzfp actually applied, and <code>Zfp::Stream#actual_rate</code> exposes it.</p>
+</div>
+<p><strong>Measured on a sinusoid × 1000 (256 doubles):</strong></p>
 <table>
 <thead>
 <tr>
 <th>Rate (bits)</th>
-<th>Compression ratio</th>
-<th>Notes</th>
+<th>Compressed</th>
+<th>Ratio</th>
+<th>Max error</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>32</td>
-<td>2×</td>
-<td>Near-lossless for smooth data</td>
-</tr>
-<tr>
 <td>16</td>
+<td>512 B</td>
 <td>4×</td>
-<td>Noticeable error on high-dynamic-range data</td>
+<td>small</td>
 </tr>
 <tr>
 <td>8</td>
+<td>256 B</td>
 <td>8×</td>
-<td>Significant lossy compression</td>
+<td>22.8</td>
 </tr>
 <tr>
 <td>4</td>
+<td>128 B</td>
 <td>16×</td>
-<td>Very aggressive — validate error bounds first</td>
+<td>612</td>
+</tr>
+<tr>
+<td>2 (applied as 3)</td>
+<td>96 B</td>
+<td>21×</td>
+<td>1000 (useless)</td>
 </tr>
 </tbody>
 </table>
@@ -1357,11 +1395,12 @@
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">back</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="p">,</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">                               </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:fixed_rate</span><span class="p">,</span><span class="w"> </span><span class="ss">rate</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">max_err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="o">.</span><span class="n">zip</span><span class="p">(</span><span class="n">back</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="w"> </span><span class="p">}</span><span class="o">.</span><span class="n">max</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;max_err=</span><span class="si">#{</span><span class="n">max_err</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">  </span><span class="c1"># verify this is within your tolerance</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nb">puts</span><span class="w"> </span><span class="s2">"max_err=</span><span class="si">#{</span><span class="n">max_err</span><span class="si">}</span><span class="s2">"</span><span class="w">  </span><span class="c1"># verify this is within your tolerance</span>
 </span></code></pre></div>
+<p>Because the size of a fixed-rate stream is known exactly, <code>decompress</code> raises <code>Zfp::DecompressionFailed</code> when it is handed a shorter (truncated) one. The other three modes have no fixed size, so truncation there cannot be detected — see <a href="../api/errors/#zfpdecompressionfailed">Errors</a>.</p>
 <hr />
 <h2 id="mode-comparison">Mode Comparison<a class="headerlink" href="#mode-comparison" title="Permanent link">&para;</a></h2>
-<p>Benchmarked on 256 doubles drawn from a sinusoidal dataset:</p>
+<p>Measured on the same 256 doubles, <code>Math.sin(i * 0.05) * 1000</code> for <code>i</code> in <code>1..256</code>, 1-D (<code>examples/01_basic_usage.rb</code>, section 3):</p>
 <table>
 <thead>
 <tr>
@@ -1376,8 +1415,8 @@
 <tr>
 <td><code>:reversible</code></td>
 <td>2.0 KB</td>
-<td>~800 B</td>
-<td>~2.5×</td>
+<td>1.8 KB</td>
+<td>1.1×</td>
 <td>0 (exact)</td>
 </tr>
 <tr>
@@ -1385,38 +1424,53 @@
 <td>2.0 KB</td>
 <td>256 B</td>
 <td>8×</td>
-<td>data-dependent</td>
+<td>22.8</td>
 </tr>
 <tr>
 <td><code>:fixed_rate, rate: 4.0</code></td>
 <td>2.0 KB</td>
 <td>128 B</td>
 <td>16×</td>
-<td>data-dependent</td>
+<td>612</td>
 </tr>
 <tr>
 <td><code>:fixed_precision, precision: 24</code></td>
 <td>2.0 KB</td>
-<td>~384 B</td>
-<td>~5×</td>
-<td>relative</td>
+<td>760 B</td>
+<td>2.7×</td>
+<td>5.0e-4</td>
+</tr>
+<tr>
+<td><code>:fixed_precision, precision: 12</code></td>
+<td>2.0 KB</td>
+<td>376 B</td>
+<td>5.4×</td>
+<td>1.6</td>
 </tr>
 <tr>
 <td><code>:fixed_accuracy, tolerance: 0.001</code></td>
 <td>2.0 KB</td>
-<td>~280 B</td>
-<td>~7×</td>
-<td>≤ 0.001</td>
+<td>744 B</td>
+<td>2.8×</td>
+<td>5.0e-4</td>
 </tr>
 <tr>
 <td><code>:fixed_accuracy, tolerance: 0.1</code></td>
 <td>2.0 KB</td>
-<td>~192 B</td>
-<td>~10×</td>
-<td>≤ 0.1</td>
+<td>552 B</td>
+<td>3.7×</td>
+<td>2.8e-2</td>
+</tr>
+<tr>
+<td><code>:fixed_accuracy, tolerance: 1.0</code></td>
+<td>2.0 KB</td>
+<td>424 B</td>
+<td>4.8×</td>
+<td>4.4e-1</td>
 </tr>
 </tbody>
 </table>
+<p>A 256-element 1-D array is a small, hard case for ZFP. Larger and higher-dimensional data with real spatial correlation compresses far better; see <a href="../multi-dimensional/">Multi-Dimensional Arrays</a>.</p>
 <hr />
 <h2 id="mode-limitations-by-type">Mode Limitations by Type<a class="headerlink" href="#mode-limitations-by-type" title="Permanent link">&para;</a></h2>
 <table>
@@ -1460,7 +1514,7 @@
 </tr>
 </tbody>
 </table>
-<p>Integer types support <code>:reversible</code> only — they are already lossless by nature, and lossy integer compression rarely makes sense.</p>
+<p>Integer types support <code>:reversible</code> only; combining them with another mode raises <code>Zfp::InvalidMode</code>. Integer data must consist of Ruby <code>Integer</code>s within the 32-bit or 64-bit signed range, or <code>Zfp::InvalidType</code> is raised — nothing is silently truncated or wrapped.</p>
 
 
 
@@ -1635,10 +1689,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

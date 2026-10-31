@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1288,52 +1288,61 @@
 <tbody>
 <tr>
 <td>Aggressive Growth</td>
-<td>17</td>
-<td>33.5 KB</td>
-<td>31.6 KB</td>
+<td>16</td>
+<td>31.5 KB</td>
+<td>28.3 KB</td>
 <td>1.1×</td>
-<td>10.1 KB</td>
-<td>3.3×</td>
+<td>10.6 KB</td>
+<td>3.0×</td>
 </tr>
 <tr>
 <td>Blue Chip Value</td>
-<td>14</td>
-<td>27.6 KB</td>
-<td>26.0 KB</td>
+<td>29</td>
+<td>57.1 KB</td>
+<td>53.2 KB</td>
 <td>1.1×</td>
-<td>8.5 KB</td>
-<td>3.2×</td>
+<td>20.2 KB</td>
+<td>2.8×</td>
 </tr>
 <tr>
 <td>Tech Momentum</td>
-<td>22</td>
-<td>43.3 KB</td>
-<td>40.6 KB</td>
-<td>1.1×</td>
-<td>13.3 KB</td>
-<td>3.3×</td>
+<td>14</td>
+<td>27.6 KB</td>
+<td>27.5 KB</td>
+<td>1.0×</td>
+<td>10.2 KB</td>
+<td>2.7×</td>
 </tr>
 <tr>
 <td>Dividend Income</td>
-<td>13</td>
-<td>25.6 KB</td>
-<td>24.2 KB</td>
+<td>20</td>
+<td>39.4 KB</td>
+<td>35.2 KB</td>
 <td>1.1×</td>
-<td>7.7 KB</td>
-<td>3.3×</td>
+<td>13.2 KB</td>
+<td>3.0×</td>
 </tr>
 <tr>
 <td>Balanced Core</td>
-<td>19</td>
-<td>37.4 KB</td>
-<td>35.4 KB</td>
+<td>23</td>
+<td>45.3 KB</td>
+<td>42.4 KB</td>
 <td>1.1×</td>
-<td>11.2 KB</td>
-<td>3.3×</td>
+<td>16.2 KB</td>
+<td>2.8×</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td>200.8 KB</td>
+<td>186.6 KB</td>
+<td>1.1×</td>
+<td>70.5 KB</td>
+<td>2.8×</td>
 </tr>
 </tbody>
 </table>
-<p>GBM output is high-entropy compared to real prices, so lossless ratios are modest (~1.1×). Real correlated market data typically compresses 2×–6× losslessly.</p>
+<p>GBM output is high-entropy compared to real prices: daily returns are independent noise and the securities are uncorrelated, so lossless ratios are modest (~1.1×) and the 2-D layout adds little. Real market data, with correlated sectors and autocorrelated moves, should do better; measure before you rely on a number.</p>
 <h3 id="data-integrity-verification">Data Integrity Verification<a class="headerlink" href="#data-integrity-verification" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">ll_restored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">portfolio</span><span class="o">.</span><span class="n">packed_lossless</span><span class="p">)</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">ls_restored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">portfolio</span><span class="o">.</span><span class="n">packed_lossy</span><span class="p">)</span>
@@ -1518,10 +1527,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

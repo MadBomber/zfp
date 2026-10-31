@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -891,6 +891,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#zfppacked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zfp::Packed
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1133,6 +1144,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#zfppacked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zfp::Packed
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1223,8 +1245,9 @@
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        ├── Zfp::Field      — wraps zfp_field_t (array descriptor)
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        ├── Zfp::Stream     — wraps zfp_stream_t + bitstream_t (compression engine)
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        ├── Zfp::Packer     — 32-byte header encode/decode
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        └── Zfp::TypeCoercion — Ruby Array ↔ FFI::MemoryPointer, Numo integration
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>              └── Zfp::FFI  — raw libzfp bindings via ruby-ffi
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        ├── Zfp::Packed     — value object around packed bytes (save/load/unpack)
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        └── Zfp::TypeCoercion — Ruby Array ↔ FFI::MemoryPointer, Numo integration
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>              └── Zfp::FFI  — raw libzfp bindings via ruby-ffi
 </span></code></pre></div>
 <hr />
 <h2 id="zfpffi"><code>Zfp::FFI</code><a class="headerlink" href="#zfpffi" title="Permanent link">&para;</a></h2>
@@ -1330,6 +1353,7 @@
 <li>The shape (1–4 dimensions)</li>
 </ul>
 <p>The buffer reference is retained as an instance variable to prevent GC while the field is alive.</p>
+<p><strong>Dimension order.</strong> <code>shape</code> is row-major (last dimension fastest). libzfp's <code>nx</code> is the <em>fastest</em>-varying dimension, so <code>Field</code> reverses the shape before calling <code>zfp_field_set_size_*d</code>: <code>shape: [50, 252]</code> becomes <code>nx = 252, ny = 50</code>. <code>Field.zfp_dimensions(shape)</code> exposes that mapping and <code>Field.validate_shape!(shape)</code> is the shape check shared with <code>Codec</code>. This is the only place the conversion happens; see <a href="https://github.com/MadBomber/zfp/issues/2">Issue #2</a>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Field</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">252</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">)</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">field</span><span class="o">.</span><span class="n">pointer</span><span class="w">   </span><span class="c1"># =&gt; FFI::Pointer to zfp_field_t</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="w">      </span><span class="c1"># =&gt; 2</span>
@@ -1343,7 +1367,7 @@
 <p>A <code>Stream</code> is constructed with a mode and params, then used once:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Stream</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:fixed_accuracy</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">tolerance</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mo">001</span><span class="w"> </span><span class="p">})</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">compressed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stream</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w">   </span><span class="c1"># → String of bytes</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">stream</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">compressed</span><span class="p">)</span><span class="w">  </span><span class="c1"># fills field&#39;s output buffer</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">stream</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">compressed</span><span class="p">)</span><span class="w">  </span><span class="c1"># fills field's output buffer</span>
 </span></code></pre></div>
 <p>The stream allocates <code>zfp_stream_t</code> and <code>bitstream_t</code>, calls <code>zfp_compress</code> or <code>zfp_decompress</code>, and frees both in <code>ensure</code>.</p>
 <p><strong><code>#compress</code> flow:</strong></p>
@@ -1362,6 +1386,7 @@
 <li>Open <code>bitstream_t</code> over the input</li>
 <li>Call <code>zfp_decompress</code> into the field's output buffer; raise <code>DecompressionFailed</code> if it returns 0</li>
 </ol>
+<p><strong>Input safety.</strong> libzfp's bitstream performs no bounds checking: it reads as many words as the field requires regardless of how many bytes were supplied. <code>#decompress</code> therefore raises on empty input, copies the bytes into a zero-filled buffer of at least <code>zfp_stream_maximum_size</code>, and for <code>:fixed_rate</code> (whose size is exact: <code>blocks × bits_per_block</code> rounded up to a 64-bit word, from the rate libzfp actually applied) raises <code>DecompressionFailed</code> when the input is shorter than <code>#fixed_rate_size</code>. <code>#actual_rate</code> exposes the applied rate after a fixed-rate call.</p>
 <hr />
 <h2 id="zfptypecoercion"><code>Zfp::TypeCoercion</code><a class="headerlink" href="#zfptypecoercion" title="Permanent link">&para;</a></h2>
 <p><code>lib/zfp/type_coercion.rb</code> — Converts between Ruby data and <code>FFI::MemoryPointer</code> buffers, and handles Numo integration.</p>
@@ -1441,7 +1466,7 @@
 <tr>
 <td>0–3</td>
 <td>Magic</td>
-<td><code>"ZFP\x01"</code></td>
+<td><code>"ZFP\x02"</code> (0.2.0+). <code>"ZFP\x01"</code> was written by 0.1.0, whose multi-dimensional layout was transposed; <code>decode</code> accepts v1 only for rank 1 and raises <code>PackerError</code> otherwise</td>
 </tr>
 <tr>
 <td>4</td>
@@ -1494,9 +1519,20 @@
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">Zfp</span><span class="o">::</span><span class="no">Packer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">compressed_bytes</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:,</span><span class="w"> </span><span class="ss">params</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="ss">numo</span><span class="p">:</span><span class="w"> </span><span class="kp">false</span><span class="p">)</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># =&gt; String: 32-byte header + compressed_bytes</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="no">Zfp</span><span class="o">::</span><span class="no">Packer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">bytes</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="no">Zfp</span><span class="o">::</span><span class="no">Packer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">bytes</span><span class="p">)</span><span class="w">   </span><span class="c1"># bytes: String or anything with #to_str (e.g. Zfp::Packed)</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># =&gt; [type, shape, mode, params, numo, compressed_data]</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># raises Zfp::PackerError if header is corrupt</span>
+</span></code></pre></div>
+<hr />
+<h2 id="zfppacked"><code>Zfp::Packed</code><a class="headerlink" href="#zfppacked" title="Permanent link">&para;</a></h2>
+<p><code>lib/zfp/packed.rb</code> — A small frozen value object around the bytes produced by <code>pack</code>. It responds to <code>to_str</code>, so anything that accepts a <code>String</code> (including <code>Zfp.unpack</code> and <code>Packer.decode</code>) accepts a <code>Packed</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Packed</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">252</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">))</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">packed</span><span class="o">.</span><span class="n">bytesize</span><span class="w">        </span><span class="c1"># =&gt; Integer</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">packed</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">loaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">::</span><span class="no">Packed</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"prices.zfp"</span><span class="p">)</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">loaded</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">packed</span><span class="w">       </span><span class="c1"># =&gt; true</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">loaded</span><span class="o">.</span><span class="n">unpack</span><span class="w">          </span><span class="c1"># =&gt; the original data</span>
 </span></code></pre></div>
 
 
@@ -1672,10 +1708,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/zfp.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1303,57 +1303,68 @@
 <tr>
 <th>Mode</th>
 <th>Params</th>
-<th>Expected ratio</th>
+<th>Measured ratio</th>
+<th>Max error</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>:reversible</code></td>
 <td>—</td>
-<td>~2.5×</td>
+<td>1.1×</td>
+<td>0</td>
 </tr>
 <tr>
 <td><code>:fixed_rate</code></td>
 <td><code>rate: 8.0</code></td>
 <td>8×</td>
+<td>22.8</td>
 </tr>
 <tr>
 <td><code>:fixed_rate</code></td>
 <td><code>rate: 4.0</code></td>
 <td>16×</td>
+<td>612</td>
 </tr>
 <tr>
 <td><code>:fixed_rate</code></td>
 <td><code>rate: 2.0</code></td>
-<td>32×</td>
+<td>21× (libzfp applies its 3 bits/value minimum)</td>
+<td>1000</td>
 </tr>
 <tr>
 <td><code>:fixed_precision</code></td>
 <td><code>precision: 24</code></td>
-<td>~5×</td>
+<td>2.7×</td>
+<td>5.0e-4</td>
 </tr>
 <tr>
 <td><code>:fixed_precision</code></td>
 <td><code>precision: 12</code></td>
-<td>~10×</td>
+<td>5.4×</td>
+<td>1.6</td>
 </tr>
 <tr>
 <td><code>:fixed_accuracy</code></td>
 <td><code>tolerance: 0.001</code></td>
-<td>~7×</td>
+<td>2.8×</td>
+<td>5.0e-4</td>
 </tr>
 <tr>
 <td><code>:fixed_accuracy</code></td>
 <td><code>tolerance: 0.1</code></td>
-<td>~10×</td>
+<td>3.7×</td>
+<td>2.8e-2</td>
 </tr>
 <tr>
 <td><code>:fixed_accuracy</code></td>
 <td><code>tolerance: 1.0</code></td>
-<td>~13×</td>
+<td>4.8×</td>
+<td>4.4e-1</td>
 </tr>
 </tbody>
 </table>
+<p>A 256-element 1-D sinusoid is a small, hard case for ZFP; the point of this section is the trade-off between modes, not the absolute ratios.</p>
 <h3 id="4-pack-unpack">4. Pack / Unpack<a class="headerlink" href="#4-pack-unpack" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Self-describing bytes — metadata embedded in 32-byte header</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">packed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zfp</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:double</span><span class="p">,</span><span class="w"> </span><span class="ss">shape</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="mi">100</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">mode</span><span class="p">:</span><span class="w"> </span><span class="ss">:reversible</span><span class="p">)</span>
@@ -1408,10 +1419,10 @@
 </span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
 </span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>  All four scalar types · shape=[128] · mode=:reversible
 </span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>  ──────────────────────────────────────────────────────────────────
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>  type=:float, shape=[128]               512 B →     248 B    2.1x  [exact     ]
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>  type=:double, shape=[128]            1.0 KB →     488 B    2.1x  [exact     ]
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>  type=:int32, shape=[128]               512 B →     192 B    2.7x  [exact     ]
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>  type=:int64, shape=[128]             1.0 KB →     344 B    3.0x  [exact     ]
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>  type=:float, shape=[128]                 512 B →   160 B   3.2x  [exact     ]
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>  type=:double, shape=[128]               1.0 KB →   176 B   5.8x  [exact     ]
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>  type=:int32, shape=[128]                 512 B →   192 B   2.7x  [exact     ]
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>  type=:int64, shape=[128]                1.0 KB →   456 B   2.2x  [exact     ]
 </span></code></pre></div>
 
 
@@ -1587,10 +1598,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "header.autohide", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
