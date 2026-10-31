@@ -58,6 +58,13 @@ class PackerTest < Minitest::Test
     assert_equal [10], shape
   end
 
+  def test_decode_header_returns_metadata_without_payload
+    packed = Zfp::Packer.encode(RAW_BYTES, type: :int64, shape: [2, 3], mode: :fixed_rate,
+                                 params: { rate: 6.0 }, numo: true)
+    h = Zfp::Packer.decode_header(packed)
+    assert_equal({ type: :int64, shape: [2, 3], mode: :fixed_rate, params: { rate: 6.0 }, numo: true }, h)
+  end
+
   def test_raises_packer_error_for_wrong_magic
     bad = "BAAD" + ("\x00" * 28) + RAW_BYTES
     err = assert_raises(Zfp::PackerError) { Zfp::Packer.decode(bad) }

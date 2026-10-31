@@ -21,8 +21,9 @@ module Zfp
     Codec.new(type: type, shape: shape, mode: mode, numo: numo, **params).decompress(bytes)
   end
 
-  # numo: controls what Zfp.unpack returns later. It defaults to true for
-  # Numo::NArray input and false for a Ruby Array.
+  # Returns a Zfp::Packed: self-describing bytes that #unpack, #save(path),
+  # and convert to a String via #to_str. numo: controls what unpack returns
+  # later; it defaults to true for Numo::NArray input and false for an Array.
   def self.pack(data, type: nil, shape: nil, mode:, numo: nil, **params)
     type  ||= TypeCoercion.detect_type(data)  or raise InvalidType,  "type: required for Ruby Array input"
     shape ||= TypeCoercion.detect_shape(data) or raise InvalidShape, "shape: required for Ruby Array input"
@@ -30,8 +31,15 @@ module Zfp
     Codec.new(type: type, shape: shape, mode: mode, numo: as_numo, **params).pack(data, numo: as_numo)
   end
 
+  # Decompresses packed bytes (a String or a Zfp::Packed) back to data.
   def self.unpack(bytes)
     type, shape, mode, params, numo, compressed = Packer.decode(bytes)
     Codec.new(type: type, shape: shape, mode: mode, numo: numo, **params).decompress(compressed)
+  end
+
+  # Reads a file written with Zfp::Packed#save. Returns the Zfp::Packed with
+  # its metadata intact; call #unpack on it for the data.
+  def self.load(path)
+    Packed.load(path)
   end
 end

@@ -46,9 +46,13 @@ prices = [174.21, 174.85, 173.40, 175.10, 176.33]  # ... 10,000 more
 
 # Self-describing pack — no metadata bookkeeping required
 packed   = Zfp.pack(prices, type: :double, shape: [prices.size], mode: :reversible)
-restored = Zfp.unpack(packed)
+restored = packed.unpack
 
 prices == restored  # => true
+
+# ...or straight to a .zfp file and back
+packed.save("prices.zfp")
+Zfp.load("prices.zfp").unpack == prices  # => true
 ```
 
 ## Where to Go Next

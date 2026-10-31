@@ -1,6 +1,6 @@
 # Module Methods
 
-`Zfp` exposes four module-level methods. These are the simplest way to compress and decompress data without creating any objects.
+`Zfp` exposes five module-level methods. These are the simplest way to compress and decompress data without creating any objects.
 
 ---
 
@@ -86,27 +86,27 @@ back = Zfp.decompress(bytes, type: :double, shape: [50, 252],
 ## `Zfp.pack`
 
 ```ruby
-Zfp.pack(data, type: nil, shape: nil, mode:, numo: nil, **params) → String
+Zfp.pack(data, type: nil, shape: nil, mode:, numo: nil, **params) → Zfp::Packed
 ```
 
-Compresses `data` and prepends a 32-byte header containing all metadata. The result is a self-describing byte string that can be decompressed with `Zfp.unpack` without any additional arguments.
+Compresses `data` and prepends a 32-byte header containing all metadata. The result is a [`Zfp::Packed`](packed.md): self-describing bytes that can be decompressed with `#unpack` or `Zfp.unpack` without any additional arguments, saved with `#save(path)`, and passed anywhere a `String` is accepted.
 
 **Arguments:** Same as `compress`, plus the same Numo auto-detection, plus `numo:` — whether `Zfp.unpack` should return a `Numo::NArray`. Defaults to `true` for Numo input and `false` for a Ruby `Array`.
 
 **Header format:** The 32-byte header stores magic bytes (`ZFP\x02`), type, mode, dimensionality, shape dimensions, mode parameter (rate/precision/tolerance), and a flag indicating whether the original input was a `Numo::NArray`. The header is gem-specific; see [Internals](internals.md#zfppacker) for the layout.
 
-**Returns:** A `String` of `32 + compressed_size` bytes.
+**Returns:** A `Zfp::Packed` of `32 + compressed_size` bytes (`#bytesize`), convertible to a `String` with `#to_str`.
 
 **Example:**
 
 ```ruby
 packed = Zfp.pack(prices, type: :double, shape: [252],
                           mode: :fixed_accuracy, tolerance: 0.001)
-# => "ZFP\x02..." (32-byte header + compressed body)
+# => #<Zfp::Packed type=:double shape=[252] mode=:fixed_accuracy tolerance=0.001 bytesize=664>
 
 # Can be stored anywhere and decoded without a schema
-File.write("prices.zfp", packed, mode: "wb")
-Redis.current.set("prices:AAPL", packed)
+packed.save("prices.zfp")
+Redis.current.set("prices:AAPL", packed)   # String-compatible via to_str
 ```
 
 ---
@@ -117,7 +117,7 @@ Redis.current.set("prices:AAPL", packed)
 Zfp.unpack(bytes) → Array | Numo::NArray
 ```
 
-Decodes a byte string produced by `pack` or `Zfp::Codec#pack`. Reads all metadata from the embedded header and decompresses.
+Decodes a `Zfp::Packed`, or the raw bytes of one (for example read back from Redis), produced by `pack` or `Zfp::Codec#pack`. Reads all metadata from the embedded header and decompresses. `packed.unpack` is the same operation.
 
 **Arguments:**
 
@@ -135,4 +135,33 @@ Decodes a byte string produced by `pack` or `Zfp::Codec#pack`. Reads all metadat
 packed   = Zfp.pack(matrix, mode: :reversible)  # matrix is Numo::DFloat[50, 252]
 restored = Zfp.unpack(packed)
 # => Numo::DFloat[50, 252]  — type, shape, and mode all recovered from header
+
+raw = redis.get("closes")     # a String of packed bytes
+Zfp.unpack(raw)               # works on the raw bytes too
 ```
+
+---
+
+## `Zfp.load`
+
+```ruby
+Zfp.load(path) → Zfp::Packed
+```
+
+Reads a file written with [`Zfp::Packed#save`](packed.md#save) and returns the `Zfp::Packed`, metadata intact. Nothing is decompressed until you call `#unpack`, so loading is cheap and the header fields (`type`, `shape`, `mode`, `params`, `numo?`) can be inspected first.
+
+**Raises:** `Errno::ENOENT` and other `SystemCallError`s from the filesystem; `Zfp::PackerError` if the file is not a zfp pack (or is a multi-dimensional 0.1.0 pack).
+
+**Example:**
+
+```ruby
+packed = Zfp.pack(prices, type: :double, shape: [252], mode: :fixed_accuracy, tolerance: 0.001)
+packed.save("prices.zfp")
+
+loaded = Zfp.load("prices.zfp")
+loaded.shape      # => [252]
+loaded.params     # => { tolerance: 0.001 }
+prices = loaded.unpack
+```
+
+The `.zfp` extension is recommended (`Zfp::Packed::EXTENSION`) but not enforced.

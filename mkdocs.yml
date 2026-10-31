@@ -153,6 +153,7 @@ nav:
       - api/index.md
       - Module Methods: api/module-methods.md
       - Zfp::Codec: api/codec.md
+      - Zfp::Packed: api/packed.md
       - Errors: api/errors.md
       - Internals: api/internals.md
   - Examples:

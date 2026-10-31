@@ -54,7 +54,7 @@ class NumoAvailabilityTest < Minitest::Test
   def test_ruby_array_paths_work_without_numo
     out, ok = run_without_numo(<<~RUBY)
       packed = Zfp.pack([1.0, 2.0], type: :double, shape: [2], mode: :reversible)
-      p Zfp.unpack(packed)
+      p packed.unpack
     RUBY
     assert ok, out
     assert_equal "[1.0, 2.0]", out

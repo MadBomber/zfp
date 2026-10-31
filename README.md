@@ -66,9 +66,13 @@ prices == restored  # => true
 
 # Self-describing pack — no metadata bookkeeping required
 packed   = Zfp.pack(prices, type: :double, shape: [prices.size], mode: :reversible)
-restored = Zfp.unpack(packed)  # type, shape, mode all embedded — no args needed
+restored = packed.unpack       # type, shape, mode all embedded — no args needed
 
 prices == restored  # => true
+
+# Save to disk and load it back — a .zfp file needs no sidecar schema
+packed.save("prices.zfp")
+Zfp.load("prices.zfp").unpack == prices  # => true
 ```
 
 That's it. The rest is just choosing how hard you want to squeeze.
@@ -94,19 +98,27 @@ bytes = Zfp.compress(prices, type: :double, shape: [1000], mode: :fixed_accuracy
 data  = Zfp.decompress(bytes, type: :double, shape: [1000], mode: :fixed_accuracy, tolerance: 0.001)
 ```
 
-**Self-describing bytes** (`pack` / `unpack`)
+**Self-describing bytes** (`pack` / `unpack` / `save` / `load`)
 
-Metadata is embedded in a 32-byte header. Pass bytes anywhere — Redis, S3, a message queue — and unpack without needing a schema.
-
-The header is specific to this gem. Neither it nor the raw `compress` output (which carries no zfp header at all) can be read by the `zfp` command-line tool or by zfp bindings for other languages.
+`pack` returns a `Zfp::Packed`: the compressed payload behind a 32-byte header holding type, shape, mode, and parameters. Pass it anywhere a `String` goes — Redis, S3, a message queue, `File.binwrite` — it converts via `to_str`. Unpack without needing a schema.
 
 ```ruby
 # Pack: type/shape/mode/params stored in the bytes themselves
-packed   = Zfp.pack(data, type: :double, shape: [1000], mode: :fixed_accuracy, tolerance: 0.001)
+packed = Zfp.pack(data, type: :double, shape: [1000], mode: :fixed_accuracy, tolerance: 0.001)
+packed            # => #<Zfp::Packed type=:double shape=[1000] mode=:fixed_accuracy tolerance=0.001 bytesize=2744>
+packed.shape      # header fields are readable without decompressing
+packed.bytesize
 
 # Unpack: zero arguments needed
-restored = Zfp.unpack(packed)
+restored = packed.unpack          # or Zfp.unpack(packed), or Zfp.unpack(raw_string)
+
+# Persist as a .zfp file and read it back
+packed.save("prices.zfp")
+loaded = Zfp.load("prices.zfp")   # => Zfp::Packed, metadata intact
+loaded.unpack
 ```
+
+The header is specific to this gem. Neither it nor the raw `compress` output (which carries no zfp header at all) can be read by the `zfp` command-line tool or by zfp bindings for other languages.
 
 ### `Zfp::Codec` — when you compress many arrays with the same config
 
@@ -123,8 +135,8 @@ end
 # Retrieve and decompress
 prices = codec.decompress(store["AAPL"])
 
-# Or pack (self-describing) via codec
-packed = codec.pack(daily_closes["AAPL"])
+# Or pack (self-describing) via codec, and save it
+codec.pack(daily_closes["AAPL"]).save("aapl.zfp")
 ```
 
 ---
@@ -299,7 +311,7 @@ All inherit from `Zfp::Error < StandardError`.
 - **ML embedding storage** — vectors stay geometrically faithful under `:fixed_accuracy` at
   tolerances that preserve cosine similarity.
 - **Message queues** — pack/unpack means the consumer needs no schema; bytes are self-describing.
-- **Checkpointing numerical computation** — save intermediate Numo arrays between steps.
+- **Checkpointing numerical computation** — `pack(...).save("step.zfp")` intermediate Numo arrays between steps; `Zfp.load` restores them with shape and type intact.
 
 ## When Not to Use This Gem
 

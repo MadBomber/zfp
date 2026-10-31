@@ -43,8 +43,8 @@ module Zfp
     def pack(data, numo: nil)
       as_numo    = numo.nil? ? (@numo || TypeCoercion.numo?(data)) : numo
       compressed = compress(data)
-      Packer.encode(compressed, type: @type, shape: @shape, mode: @mode,
-                    params: @params, numo: as_numo)
+      Packed.new(Packer.encode(compressed, type: @type, shape: @shape, mode: @mode,
+                               params: @params, numo: as_numo))
     end
 
     private

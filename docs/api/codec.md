@@ -79,17 +79,18 @@ result = numo_codec.decompress(bytes)
 ## `#pack`
 
 ```ruby
-codec.pack(data, numo: nil) → String
+codec.pack(data, numo: nil) → Zfp::Packed
 ```
 
-Compresses `data` and prepends the 32-byte metadata header, just like `Zfp.pack`. The resulting bytes are self-describing and can be decoded with `Zfp.unpack`. `numo:` sets whether `Zfp.unpack` returns a `Numo::NArray`; by default it does when the codec was built with `numo: true` or the input is a Numo array.
+Compresses `data` and prepends the 32-byte metadata header, just like `Zfp.pack`. The resulting [`Zfp::Packed`](packed.md) is self-describing: decode it with `#unpack` or `Zfp.unpack`, or write it to disk with `#save`. `numo:` sets whether `Zfp.unpack` returns a `Numo::NArray`; by default it does when the codec was built with `numo: true` or the input is a Numo array.
 
 **Example:**
 
 ```ruby
 codec  = Zfp::Codec.new(type: :double, shape: [50], mode: :reversible)
 packed = codec.pack(data)
-result = Zfp.unpack(packed)   # Zfp.unpack: no additional args
+result = packed.unpack        # no additional args
+packed.save("data.zfp")       # or persist it; Zfp.load("data.zfp").unpack later
 ```
 
 ---
@@ -128,6 +129,6 @@ codec   = Zfp::Codec.new(type: :float, shape: [1536], mode: :fixed_accuracy, tol
 vectors = embedding_batch.map { |v| codec.pack(v) }
 
 # Store and retrieve without keeping a schema
-vectors.each { |v| queue.push(v) }
-queue.each   { |v| process(Zfp.unpack(v)) }
+vectors.each { |v| queue.push(v.to_str) }
+queue.each   { |bytes| process(Zfp.unpack(bytes)) }
 ```

@@ -39,8 +39,14 @@
 
 ### Added
 
-- `Zfp::Packed` — a small value object around packed bytes with `#unpack`,
-  `#save(path)`, `Packed.load(path)`, `#bytesize`, and `#to_str`.
+- **Save and load `.zfp` files** ([#1](https://github.com/MadBomber/zfp/issues/1)).
+  `Zfp.pack` and `Codec#pack` now return a `Zfp::Packed` instead of a raw
+  `String`. It converts to a `String` via `#to_str`, so Redis, `File.binwrite`,
+  `Zfp.unpack` and friends keep working; code that indexed the result as a
+  String (`packed[0, 4]`) needs `packed.to_str`. `Packed#save(path)` writes the
+  file and `Zfp.load(path)` (alias `Packed.load`) reads it back with metadata
+  intact. `Packed#type`, `#shape`, `#mode`, `#params`, `#numo?` and `#inspect`
+  read the header without decompressing; `Packer.decode_header` backs them.
 - `LICENSE` file (MIT) and gemspec license/metadata.
 
 ## [0.1.0] - 2026-04-28

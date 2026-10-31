@@ -163,20 +163,13 @@ Zfp::Packer.encode(compressed_bytes, type:, shape:, mode:, params: {}, numo: fal
 Zfp::Packer.decode(bytes)   # bytes: String or anything with #to_str (e.g. Zfp::Packed)
 # => [type, shape, mode, params, numo, compressed_data]
 # raises Zfp::PackerError if header is corrupt
+
+Zfp::Packer.decode_header(bytes)
+# => { type:, shape:, mode:, params:, numo: }  — header only, payload untouched
 ```
 
 ---
 
 ## `Zfp::Packed`
 
-`lib/zfp/packed.rb` — A small frozen value object around the bytes produced by `pack`. It responds to `to_str`, so anything that accepts a `String` (including `Zfp.unpack` and `Packer.decode`) accepts a `Packed`.
-
-```ruby
-packed = Zfp::Packed.new(Zfp.pack(data, type: :double, shape: [252], mode: :reversible))
-packed.bytesize        # => Integer
-packed.save("prices.zfp")
-
-loaded = Zfp::Packed.load("prices.zfp")
-loaded == packed       # => true
-loaded.unpack          # => the original data
-```
+`lib/zfp/packed.rb` — The frozen value object returned by `pack`. It responds to `to_str`, so anything that accepts a `String` (including `Zfp.unpack` and `Packer.decode`) accepts a `Packed`. Header fields are parsed lazily with `Packer.decode_header` and cached. See the [`Zfp::Packed` reference](packed.md).

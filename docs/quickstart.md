@@ -30,18 +30,34 @@ restored = Zfp.decompress(bytes, type: :double, shape: [prices.size],
 
 ### Self-describing bytes: `pack` / `unpack`
 
-Metadata (type, shape, mode, params) is embedded in a 32-byte header prepended to the compressed bytes. Pass bytes anywhere — Redis, S3, a message queue — and unpack without needing a schema.
-
-The header is specific to this gem, and the raw `compress` output has no header at all, so neither can be read by the `zfp` command-line tool or other zfp bindings.
+`pack` returns a `Zfp::Packed`: the compressed payload behind a 32-byte header that records type, shape, mode, and params. It behaves like a `String` wherever one is expected (`to_str`), so it can go straight into Redis, S3, a message queue, or a file, and be unpacked later without a schema.
 
 ```ruby
 # Pack: embed type/shape/mode/params in the bytes themselves
-packed   = Zfp.pack(prices, type: :double, shape: [prices.size],
-                            mode: :fixed_accuracy, tolerance: 0.001)
+packed = Zfp.pack(prices, type: :double, shape: [prices.size],
+                          mode: :fixed_accuracy, tolerance: 0.001)
+packed.mode      # => :fixed_accuracy   (header fields, no decompression)
+packed.shape     # => [10005]
 
 # Unpack: zero additional arguments needed
-restored = Zfp.unpack(packed)
+restored = packed.unpack        # or Zfp.unpack(packed) / Zfp.unpack(raw_bytes)
 ```
+
+The header is specific to this gem, and the raw `compress` output has no header at all, so neither can be read by the `zfp` command-line tool or other zfp bindings.
+
+### Files on disk: `save` / `load`
+
+A `.zfp` file is just the packed bytes, so it is complete on its own.
+
+```ruby
+packed.save("prices.zfp")              # returns the path
+
+loaded = Zfp.load("prices.zfp")        # => Zfp::Packed, metadata intact
+loaded.type, loaded.shape, loaded.mode # inspect before decompressing
+prices_again = loaded.unpack
+```
+
+`Zfp.load` raises `Errno::ENOENT` for a missing file and `Zfp::PackerError` for a file that is not a zfp pack. The `.zfp` extension is a convention, not a requirement.
 
 ---
 
@@ -61,8 +77,8 @@ end
 # Retrieve and decompress
 prices = codec.decompress(store["AAPL"])
 
-# Or get self-describing bytes via codec.pack (decode with Zfp.unpack)
-packed = codec.pack(daily_closes["AAPL"])
+# Or get a self-describing Zfp::Packed via codec.pack, and save it
+codec.pack(daily_closes["AAPL"]).save("aapl.zfp")
 ```
 
 ---

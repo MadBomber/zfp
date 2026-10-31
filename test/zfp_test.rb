@@ -93,7 +93,8 @@ class ZfpTest < Minitest::Test
 
   def test_pack_uses_v2_header
     packed = Zfp.pack(@data, type: :double, shape: @shape, mode: :reversible)
-    assert_equal "ZFP\x02".b, packed[0, 4].b
+    assert_kind_of Zfp::Packed, packed
+    assert_equal "ZFP\x02".b, packed.to_str[0, 4].b
   end
 
   def test_unpack_raises_packer_error_on_garbage

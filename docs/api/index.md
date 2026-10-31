@@ -7,6 +7,7 @@ The `zfp` gem exposes three layers of API. Choose the one that fits your use cas
 | [Module methods](module-methods.md) | `Zfp.compress`, `Zfp.decompress`, `Zfp.pack`, `Zfp.unpack` | One-off operations; the easy path |
 | [`Zfp::Codec`](codec.md) | Reusable object with a fixed configuration | Many arrays with the same type/shape/mode |
 | [Errors](errors.md) | `Zfp::Error` and subclasses | Error handling |
+| [`Zfp::Packed`](packed.md) | Self-describing bytes: `unpack`, `save`, header readers | Persisting `.zfp` files, passing data without a schema |
 | [Internals](internals.md) | `Zfp::Field`, `Zfp::Stream`, `Zfp::Packer`, `Zfp::FFI` | Understanding the implementation |
 
 ---
@@ -17,18 +18,22 @@ The `zfp` gem exposes three layers of API. Choose the one that fits your use cas
 # Module methods
 Zfp.compress(data, type:, shape:, mode:, **params)   → String (bytes)
 Zfp.decompress(bytes, type:, shape:, mode:, numo: false, **params)  → Array | Numo::NArray
-Zfp.pack(data, type: nil, shape: nil, mode:, numo: nil, **params)  → String (bytes with 32-byte header)
-Zfp.unpack(bytes)  → Array | Numo::NArray
+Zfp.pack(data, type: nil, shape: nil, mode:, numo: nil, **params)  → Zfp::Packed
+Zfp.unpack(bytes)  → Array | Numo::NArray      # bytes: Zfp::Packed or String
+Zfp.load(path)     → Zfp::Packed
 
 # Codec
 codec = Zfp::Codec.new(type:, shape:, mode:, numo: false, **params)
 codec.compress(data)     → String (bytes)
 codec.decompress(bytes)  → Array | Numo::NArray
-codec.pack(data, numo: nil) → String (bytes with 32-byte header)
+codec.pack(data, numo: nil) → Zfp::Packed
 
-# Packed bytes as an object
-packed = Zfp::Packed.new(bytes)   # or Zfp::Packed.load(path)
-packed.unpack / packed.save(path) / packed.bytesize / packed.to_str
+# Zfp::Packed — self-describing bytes
+packed.unpack            → Array | Numo::NArray
+packed.save(path)        → path
+packed.type / .shape / .mode / .params / .numo?   # header, no decompression
+packed.bytesize / .to_str                         # String-compatible
+Zfp::Packed.new(bytes)   # wrap raw packed bytes (e.g. from Redis)
 ```
 
 ---
